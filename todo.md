@@ -31,3 +31,14 @@
 - [x] Update judge information links to point directly to chambers pages
 - [x] Test dropdown functionality with all courts
 - [x] Verify direct judge links work correctly (fallback to generic links working, direct scraping attempted)
+
+## URL Validation and 404 Error Fixes
+
+- [x] Test all generated URLs to identify which return 404 errors
+- [x] Investigate how URLs are currently being constructed in courtScraper.ts
+- [x] Verify actual URL patterns on NDCA website
+- [x] Fix URL construction logic to match actual court website structure
+- [x] Test URLs for other supported courts (CASD, CACD, CAED, NYSD, etc.)
+- [x] Add URL validation before returning results (using verified URL mappings)
+- [x] Document correct URL patterns for each court
+- [x] Verify links work correctly in browser (no 404 errors)

@@ -55,12 +55,12 @@ export const appRouter = router({
         const normalizedCaseType = caseType ? normalizeCaseType(caseType) : undefined;
 
         // Scrape court website
-        const results = await scrapeCourtWebsite({
-          courtUrl: courtInfo.url,
-          courtName: courtInfo.name,
-          judgeName: normalizedJudge,
-          caseType: normalizedCaseType,
-        });
+        const results = await scrapeCourtWebsite(
+          courtInfo.url,
+          courtInfo.name,
+          normalizedJudge,
+          normalizedCaseType
+        );
 
         // Generate AI explanation of court structure
         const explanationPrompt = `You are a legal research assistant helping users understand how federal court websites organize their rules and procedures.
