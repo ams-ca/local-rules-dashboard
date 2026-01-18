@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
-import { findCourt, normalizeJudgeName, normalizeCaseType } from "./courtMapper";
+import { findCourt, getAllCourts, normalizeJudgeName, normalizeCaseType } from "./courtMapper";
 import { scrapeCourtWebsite } from "./courtScraper";
 import type { SearchResponse } from "@shared/types";
 import { invokeLLM } from "./_core/llm";
@@ -23,6 +23,14 @@ export const appRouter = router({
   }),
 
   search: router({
+    getSupportedCourts: publicProcedure.query(() => {
+      return getAllCourts().map(court => ({
+        id: court.id,
+        name: court.name,
+        circuit: court.circuit,
+      }));
+    }),
+    
     findRules: publicProcedure
       .input(
         z.object({

@@ -1,9 +1,12 @@
 /**
  * Court Website Scraper
  * Returns links to relevant court website pages based on user query
+ * Now includes actual scraping to find direct judge chambers page URLs
  */
 
 import type { SearchResultCategory, SearchResultLink } from "@shared/types";
+import axios from "axios";
+import { JSDOM } from "jsdom";
 
 interface ScraperOptions {
   courtUrl: string;
@@ -14,8 +17,7 @@ interface ScraperOptions {
 
 /**
  * Main scraper function that returns relevant court website links
- * This is a fast, lightweight approach that returns known page URLs
- * rather than deeply scraping content
+ * Enhanced to actually scrape judge pages for direct links
  */
 export async function scrapeCourtWebsite(options: ScraperOptions): Promise<SearchResultCategory[]> {
   const { courtUrl, courtName, judgeName, caseType } = options;
@@ -28,17 +30,30 @@ export async function scrapeCourtWebsite(options: ScraperOptions): Promise<Searc
     results.push(localRules);
   }
   
-  // Standing Orders (judge-specific)
+  // Standing Orders and Judge Information (with actual scraping if judge specified)
   if (judgeName) {
-    const standingOrders = getStandingOrdersLinks(courtUrl, courtName, judgeName);
-    if (standingOrders.links.length > 0) {
-      results.push(standingOrders);
-    }
-    
-    // Judge Information
-    const judgeInfo = getJudgeInformationLinks(courtUrl, courtName, judgeName);
-    if (judgeInfo.links.length > 0) {
-      results.push(judgeInfo);
+    try {
+      const judgeLinks = await scrapeJudgeLinks(courtUrl, courtName, judgeName);
+      
+      if (judgeLinks.standingOrders.links.length > 0) {
+        results.push(judgeLinks.standingOrders);
+      }
+      
+      if (judgeLinks.judgeInfo.links.length > 0) {
+        results.push(judgeLinks.judgeInfo);
+      }
+    } catch (error) {
+      console.error("Error scraping judge links:", error);
+      // Fallback to generic links
+      const standingOrders = getStandingOrdersLinks(courtUrl, courtName, judgeName);
+      if (standingOrders.links.length > 0) {
+        results.push(standingOrders);
+      }
+      
+      const judgeInfo = getJudgeInformationLinks(courtUrl, courtName, judgeName);
+      if (judgeInfo.links.length > 0) {
+        results.push(judgeInfo);
+      }
     }
   }
   
@@ -55,6 +70,121 @@ export async function scrapeCourtWebsite(options: ScraperOptions): Promise<Searc
   }
   
   return results;
+}
+
+/**
+ * Scrape judge-specific links from court website
+ * Finds direct links to judge chambers pages
+ */
+async function scrapeJudgeLinks(
+  courtUrl: string,
+  courtName: string,
+  judgeName: string
+): Promise<{
+  standingOrders: SearchResultCategory;
+  judgeInfo: SearchResultCategory;
+}> {
+  const standingOrdersLinks: SearchResultLink[] = [];
+  const judgeInfoLinks: SearchResultLink[] = [];
+  
+  // Try to find judge's chambers page
+  const judgesPageUrl = `${courtUrl}/judges`;
+  
+  try {
+    const response = await axios.get(judgesPageUrl, {
+      timeout: 10000,
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; CourtRulesBot/1.0)",
+      },
+    });
+    
+    const dom = new JSDOM(response.data);
+    const document = dom.window.document;
+    
+    // Find all links on the judges page
+    const allLinks = Array.from(document.querySelectorAll("a"));
+    
+    // Normalize judge name for matching (lowercase, remove titles)
+    const normalizedJudgeName = judgeName.toLowerCase()
+      .replace(/^(judge|magistrate judge|hon\.|honorable)\s+/i, "")
+      .trim();
+    
+    // Find links that contain the judge's name
+    const judgePageLinks = allLinks.filter(link => {
+      const linkText = link.textContent?.toLowerCase() || "";
+      const linkHref = link.getAttribute("href")?.toLowerCase() || "";
+      
+      // Check if link text or href contains judge's last name
+      const lastName = normalizedJudgeName.split(" ").pop() || "";
+      return linkText.includes(lastName) || linkHref.includes(lastName.replace(/\s+/g, "-"));
+    });
+    
+    // Extract unique URLs
+    const judgeUrls = new Set<string>();
+    judgePageLinks.forEach(link => {
+      const href = link.getAttribute("href");
+      if (href) {
+        const fullUrl = href.startsWith("http") ? href : `${courtUrl}${href.startsWith("/") ? "" : "/"}${href}`;
+        judgeUrls.add(fullUrl);
+      }
+    });
+    
+    // If we found direct judge page links, add them
+    if (judgeUrls.size > 0) {
+      judgeUrls.forEach(url => {
+        judgeInfoLinks.push({
+          title: `${judgeName}'s Chambers Page`,
+          url: url,
+          description: `Direct link to ${judgeName}'s chambers information, including standing orders, calendar, staff directory, and procedural requirements.`,
+        });
+      });
+    } else {
+      // Fallback: generic judges page
+      judgeInfoLinks.push({
+        title: `${judgeName}'s Chambers Information`,
+        url: judgesPageUrl,
+        description: `Directory of judges in ${courtName}. Find ${judgeName}'s page for contact information, staff directory, courtroom location, calendar, and procedural requirements.`,
+        context: `Look for ${judgeName} in the judges list`,
+      });
+    }
+    
+    // Try to find standing orders page
+    const standingOrdersUrl = `${courtUrl}/judges/standing-orders`;
+    standingOrdersLinks.push({
+      title: "Standing Orders",
+      url: standingOrdersUrl,
+      description: `Standing orders from judges in ${courtName}. Look for ${judgeName}'s standing order on this page.`,
+      context: `Search for ${judgeName}`,
+    });
+    
+  } catch (error) {
+    console.error("Error fetching judges page:", error);
+    // Return fallback links
+    judgeInfoLinks.push({
+      title: `${judgeName}'s Chambers Information`,
+      url: judgesPageUrl,
+      description: `Directory of judges in ${courtName}. Find ${judgeName}'s page for contact information, staff directory, courtroom location, calendar, and procedural requirements.`,
+      context: `Look for ${judgeName} in the judges list`,
+    });
+    
+    standingOrdersLinks.push({
+      title: "Standing Orders",
+      url: `${courtUrl}/judges/standing-orders`,
+      description: `Standing orders from judges in ${courtName}. Look for ${judgeName}'s standing order on this page.`,
+      context: `Search for ${judgeName}`,
+    });
+  }
+  
+  return {
+    standingOrders: {
+      category: "STANDING ORDERS",
+      links: standingOrdersLinks,
+    },
+    judgeInfo: {
+      category: "JUDGE INFORMATION",
+      links: judgeInfoLinks,
+    },
+  };
 }
 
 /**
@@ -109,7 +239,7 @@ function getLocalRulesLinks(courtUrl: string, courtName: string, caseType?: stri
 }
 
 /**
- * Get standing orders links
+ * Get standing orders links (fallback)
  */
 function getStandingOrdersLinks(courtUrl: string, courtName: string, judgeName: string): SearchResultCategory {
   const links: SearchResultLink[] = [];
@@ -137,7 +267,7 @@ function getStandingOrdersLinks(courtUrl: string, courtName: string, judgeName: 
 }
 
 /**
- * Get judge information links
+ * Get judge information links (fallback)
  */
 function getJudgeInformationLinks(courtUrl: string, courtName: string, judgeName: string): SearchResultCategory {
   const links: SearchResultLink[] = [];

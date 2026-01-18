@@ -7,6 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ExternalLink, Loader2, Scale, Search } from "lucide-react";
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
@@ -17,6 +24,7 @@ export default function Home() {
   const [caseType, setCaseType] = useState("");
 
   const searchMutation = trpc.search.findRules.useMutation();
+  const { data: supportedCourts, isLoading: courtsLoading } = trpc.search.getSupportedCourts.useQuery();
 
   const handleSearch = () => {
     if (!court.trim()) {
@@ -60,17 +68,26 @@ export default function Home() {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="court">Court *</Label>
-              <Input
-                id="court"
-                type="text"
-                placeholder="e.g., ND Cal, Northern District of California, NDCA"
-                value={court}
-                onChange={(e) => setCourt(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="h-11"
-              />
+              <Select value={court} onValueChange={setCourt}>
+                <SelectTrigger className="h-11">
+                  <SelectValue placeholder="Select a federal district court" />
+                </SelectTrigger>
+                <SelectContent>
+                  {courtsLoading ? (
+                    <SelectItem value="loading" disabled>
+                      Loading courts...
+                    </SelectItem>
+                  ) : (
+                    supportedCourts?.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name} ({c.circuit})
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
               <p className="text-xs text-muted-foreground">
-                Enter court name or abbreviation (required)
+                {supportedCourts?.length || 0} courts currently supported
               </p>
             </div>
 

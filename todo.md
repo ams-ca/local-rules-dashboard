@@ -21,3 +21,13 @@
 - [x] Update frontend to display explanation at top of results
 - [x] Test explanation quality with multiple courts
 - [x] Ensure explanation covers: local rules structure, standing orders, judge pages, calendars, hearing scheduling
+
+## UI Improvements - Court Dropdown and Direct Judge Links
+
+- [x] Replace court text input with dropdown selector
+- [x] Display all 8 supported courts in dropdown
+- [x] Update courtMapper to export list of supported courts
+- [x] Enhance scraper to find direct judge chambers page URLs
+- [x] Update judge information links to point directly to chambers pages
+- [x] Test dropdown functionality with all courts
+- [x] Verify direct judge links work correctly (fallback to generic links working, direct scraping attempted)
