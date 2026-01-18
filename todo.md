@@ -12,3 +12,12 @@
 - [x] Add loading states and error handling
 - [x] Test with NDCA (Northern District of California)
 - [x] Add support for additional courts (8 courts currently supported)
+
+## AI-Generated Court Structure Explanation
+
+- [x] Add LLM integration to generate contextual explanations
+- [x] Update SearchResult type to include explanation field
+- [x] Modify search router to call LLM and generate explanation
+- [x] Update frontend to display explanation at top of results
+- [x] Test explanation quality with multiple courts
+- [x] Ensure explanation covers: local rules structure, standing orders, judge pages, calendars, hearing scheduling

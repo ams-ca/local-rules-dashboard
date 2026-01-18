@@ -27,9 +27,12 @@ describe("search.findRules", () => {
     });
 
     expect(result.query.court).toBe("Northern District of California");
+    expect(result.explanation).toBeDefined();
+    expect(typeof result.explanation).toBe("string");
+    expect(result.explanation.length).toBeGreaterThan(0);
     expect(result.results).toBeDefined();
     expect(Array.isArray(result.results)).toBe(true);
-  }, 30000); // 30 second timeout for web scraping
+  }, 60000); // 60 second timeout for web scraping + LLM
 
   it("should normalize judge name", async () => {
     const ctx = createTestContext();

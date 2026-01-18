@@ -27,5 +27,6 @@ export interface SearchResultCategory {
 
 export interface SearchResponse {
   query: SearchQuery;
+  explanation: string; // AI-generated explanation of court structure
   results: SearchResultCategory[];
 }

@@ -148,6 +148,25 @@ export default function Home() {
               </p>
             </div>
 
+            {/* AI-Generated Explanation */}
+            {searchMutation.data.explanation && (
+              <Card className="p-5 bg-primary/5 border-primary/20">
+                <div className="flex gap-3">
+                  <div className="shrink-0 mt-0.5">
+                    <Scale className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-sm text-primary mb-2">
+                      About {searchMutation.data.query.court}
+                    </h3>
+                    <p className="text-sm text-foreground leading-relaxed">
+                      {searchMutation.data.explanation}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            )}
+
             {searchMutation.data.results.length === 0 ? (
               <Card className="p-12 text-center">
                 <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
