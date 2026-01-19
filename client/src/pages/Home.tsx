@@ -51,7 +51,7 @@ export default function Home() {
             <div className="flex items-center gap-3">
               <Scale className="h-8 w-8 text-primary" />
                 <h1 className="text-4xl font-display text-primary">
-                Federal Court Rules Search
+                Local Court Rules Finder
               </h1>
             </div>
             {user?.role === 'admin' && (
@@ -64,7 +64,7 @@ export default function Home() {
             )}
           </div>
           <p className="text-muted-foreground text-sm">
-            Find local rules, standing orders, and judge procedures from federal court websites
+            Navigate to local rules, standing orders, and judge procedures from federal court websites.
           </p>
         </div>
       </header>
