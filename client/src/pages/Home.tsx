@@ -57,7 +57,7 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="container py-8 max-w-4xl">
+      <main className="container py-8 max-w-5xl">
         {/* Search Form */}
         <Card className="p-6 mb-8">
           <div className="space-y-4">
@@ -119,31 +119,12 @@ export default function Home() {
 
         {searchMutation.isSuccess && searchMutation.data && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-display">
-                Search Results
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                {searchMutation.data.results.length} resources found
-              </p>
-            </div>
-
             {/* AI-Generated Explanation */}
             {searchMutation.data.explanation && (
               <Card className="p-5 bg-primary/5 border-primary/20">
-                <div className="flex gap-3">
-                  <div className="shrink-0 mt-0.5">
-                    <Scale className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-sm text-primary mb-2">
-                      About {searchMutation.data.query.court}
-                    </h3>
-                    <p className="text-sm text-foreground leading-relaxed">
-                      {searchMutation.data.explanation}
-                    </p>
-                  </div>
-                </div>
+                <p className="text-sm text-foreground leading-relaxed">
+                  {searchMutation.data.explanation}
+                </p>
               </Card>
             )}
 
@@ -156,56 +137,52 @@ export default function Home() {
                 </p>
               </Card>
             ) : (
-              <div className="space-y-8">
-                {searchMutation.data.results.map((category: any, idx: number) => (
-                  <div key={idx} className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground uppercase tracking-wide">
-                      {category.category}
-                    </h3>
-                    <div className="grid gap-4">
+              <div className="space-y-6">
+                {searchMutation.data.results
+                  .filter((category: any) => category.links && category.links.length > 0)
+                  .map((category: any, idx: number) => (
+                  <div key={idx} className="border border-border rounded-lg overflow-hidden">
+                    {/* Category Header */}
+                    <div className="bg-primary/10 px-5 py-3 border-b border-border">
+                      <h3 className="text-base font-semibold text-foreground uppercase tracking-wide">
+                        {category.category}
+                      </h3>
+                    </div>
+                    
+                    {/* Links Table */}
+                    <div className="bg-card">
                       {category.links.map((link: any, linkIdx: number) => (
-                        <Card key={linkIdx} className="p-5 hover:shadow-md transition-shadow">
-                          <div className="space-y-2">
-                            <div className="flex items-start justify-between gap-4">
-                              <h4 className="font-medium text-foreground leading-tight flex-1">
-                                {link.title}
-                              </h4>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                asChild
-                                className="shrink-0"
-                              >
+                        <div 
+                          key={linkIdx} 
+                          className={`px-5 py-4 ${linkIdx !== category.links.length - 1 ? 'border-b border-border' : ''}`}
+                        >
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1 space-y-1">
+                              <div className="flex items-baseline gap-2">
                                 <a
                                   href={link.url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="flex items-center gap-2"
+                                  className="text-primary hover:underline font-medium inline-flex items-center gap-1.5"
                                 >
-                                  <ExternalLink className="h-4 w-4" />
+                                  {link.title}
+                                  <ExternalLink className="h-3.5 w-3.5 inline" />
                                 </a>
-                              </Button>
-                            </div>
-                            <p className="text-sm text-muted-foreground">
-                              {link.description}
-                            </p>
-                            {link.context && (
-                              <p className="text-xs text-muted-foreground italic">
-                                {link.context}
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                {link.description}
                               </p>
-                            )}
-                            <div className="flex items-center justify-between gap-4 flex-wrap">
-                              <p className="text-xs font-mono text-muted-foreground break-all flex-1">
-                                {link.url}
-                              </p>
-                              {link.verifiedDate && (
-                                <p className="text-xs text-muted-foreground shrink-0">
-                                  Verified {new Date(link.verifiedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                </p>
-                              )}
+                              <div className="flex items-center gap-4 text-xs text-muted-foreground pt-1">
+                                <span className="font-mono">{link.url}</span>
+                                {link.verifiedDate && (
+                                  <span className="shrink-0">
+                                    Verified {new Date(link.verifiedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </Card>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -213,12 +190,10 @@ export default function Home() {
               </div>
             )}
 
-            <Card className="p-4 bg-muted/50">
-              <p className="text-xs text-muted-foreground">
-                <strong>Note:</strong> All links are to official court website pages. 
-                Please verify information is current before relying on it.
-              </p>
-            </Card>
+            <div className="text-xs text-muted-foreground pt-4">
+              <strong>Note:</strong> All links are to official court website pages. 
+              Please verify information is current before relying on it.
+            </div>
           </div>
         )}
       </main>

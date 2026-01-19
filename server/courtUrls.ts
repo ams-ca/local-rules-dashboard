@@ -36,7 +36,7 @@ export const COURT_URLS: Record<string, CourtUrls> = {
     generalOrders: "https://www.casd.uscourts.gov/rules/general-orders.aspx",
     standingOrders: "https://www.casd.uscourts.gov/judges/chambers-rules.aspx",
     judges: "https://www.casd.uscourts.gov/Judges.aspx",
-    procedures: "https://www.casd.uscourts.gov/",
+    procedures: "https://www.casd.uscourts.gov/cmecf.aspx#undefined2",
     lastVerified: "2026-01-18",
   },
   

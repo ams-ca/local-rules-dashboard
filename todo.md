@@ -72,3 +72,13 @@
 - [x] Update and run unit tests to verify functionality
 - [x] All tests passing (3/3 tests pass)
 - [x] Fix SD Cal URLs with correct .aspx extensions
+
+
+## UI Redesign - Library-Style Chart Layout
+
+- [x] Research UCLA Law library interface design pattern
+- [x] Redesign results display with simple chart/table layout
+- [x] Remove card-based layout in favor of clean rows
+- [x] Hide categories that have no links
+- [x] Update SD Cal procedures URL to https://www.casd.uscourts.gov/cmecf.aspx#undefined2
+- [x] Test new layout with multiple courts
