@@ -16,9 +16,9 @@ export interface SearchQuery {
 export interface SearchResultLink {
   title: string;
   url: string;
-  description: string;
+  description?: string;
   context?: string;
-  verifiedDate?: string; // ISO date string when link was last verified
+  verifiedDate?: Date; // Date when link was last verified
 }
 
 export interface SearchResultCategory {

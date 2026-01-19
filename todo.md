@@ -82,3 +82,16 @@
 - [x] Hide categories that have no links
 - [x] Update SD Cal procedures URL to https://www.casd.uscourts.gov/cmecf.aspx#undefined2
 - [x] Test new layout with multiple courts
+
+
+## URL Management & Dynamic Scraping
+
+- [x] Update CD Cal standing orders URL to https://apps.cacd.uscourts.gov/Jps/
+- [x] Design admin interface for managing court URLs
+- [x] Create database schema for storing court URLs
+- [x] Implement admin UI for editing court URLs
+- [x] Add authentication/authorization for admin interface
+- [x] Make scraper dynamically detect which categories exist per court
+- [x] Update scraper to only return categories that actually exist on the court website
+- [ ] Add URL validation before saving to database
+- [ ] Implement audit log for URL changes

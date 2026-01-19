@@ -13,11 +13,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ExternalLink, Loader2, Scale, Search } from "lucide-react";
+import { ExternalLink, Loader2, Scale, Search, Settings } from "lucide-react";
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { Link } from "wouter";
 
 export default function Home() {
+  const { user } = useAuth();
   const [court, setCourt] = useState("");
 
   const searchMutation = trpc.search.findRules.useMutation();
@@ -44,11 +47,21 @@ export default function Home() {
       {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="container py-6">
-          <div className="flex items-center gap-3 mb-2">
-            <Scale className="h-8 w-8 text-primary" />
-            <h1 className="text-4xl font-display text-primary">
-              Federal Court Rules Search
-            </h1>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3">
+              <Scale className="h-8 w-8 text-primary" />
+                <h1 className="text-4xl font-display text-primary">
+                Federal Court Rules Search
+              </h1>
+            </div>
+            {user?.role === 'admin' && (
+              <Link href="/admin">
+                <Button variant="outline" size="sm">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Admin
+                </Button>
+              </Link>
+            )}
           </div>
           <p className="text-muted-foreground text-sm">
             Find local rules, standing orders, and judge procedures from federal court websites

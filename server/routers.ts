@@ -1,11 +1,13 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { findCourt, getAllCourts, normalizeJudgeName, normalizeCaseType } from "./courtMapper";
 import { scrapeCourtWebsite } from "./courtScraper";
 import type { SearchResponse } from "@shared/types";
+import * as db from "./db";
 import { invokeLLM } from "./_core/llm";
 
 export const appRouter = router({
@@ -84,6 +86,67 @@ Keep it concise, practical, and user-friendly. Do not use bullet points.`;
           explanation,
           results,
         };
+      }),
+  }),
+
+  admin: router({
+    getAllCourtUrls: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== 'admin') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+      }
+      return await db.getAllCourtUrls();
+    }),
+
+    updateCourtUrl: protectedProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          url: z.string().optional(),
+          title: z.string().optional(),
+          description: z.string().optional(),
+          lastVerified: z.date().optional(),
+          isActive: z.number().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+        }
+        const { id, ...updates } = input;
+        return await db.updateCourtUrl(id, updates, ctx.user.name || ctx.user.email || 'admin');
+      }),
+
+    createCourtUrl: protectedProcedure
+      .input(
+        z.object({
+          courtId: z.string(),
+          courtName: z.string(),
+          circuit: z.string().optional(),
+          category: z.string(),
+          url: z.string(),
+          title: z.string(),
+          description: z.string().optional(),
+          lastVerified: z.date().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+        }
+        return await db.createCourtUrl({
+          ...input,
+          isActive: 1,
+          updatedBy: ctx.user.name || ctx.user.email || 'admin',
+        });
+      }),
+
+    deleteCourtUrl: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+        }
+        return await db.deleteCourtUrl(input.id, ctx.user.name || ctx.user.email || 'admin');
       }),
   }),
 });

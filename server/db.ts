@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, courtUrls, CourtUrl, InsertCourtUrl } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,95 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+/**
+ * Court URL Management Functions
+ */
+
+export async function getAllCourtUrls() {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get court URLs: database not available");
+    return [];
+  }
+  
+  const results = await db.select().from(courtUrls).orderBy(courtUrls.courtName, courtUrls.category);
+  return results;
+}
+
+export async function getCourtUrlsByCourtId(courtId: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get court URLs: database not available");
+    return [];
+  }
+  
+  const results = await db
+    .select()
+    .from(courtUrls)
+    .where(eq(courtUrls.courtId, courtId))
+    .orderBy(courtUrls.category);
+  
+  return results;
+}
+
+export async function getActiveCourtUrlsByCourtId(courtId: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get court URLs: database not available");
+    return [];
+  }
+  
+  const results = await db
+    .select()
+    .from(courtUrls)
+    .where(eq(courtUrls.courtId, courtId))
+    .orderBy(courtUrls.category);
+  
+  return results.filter(url => url.isActive === 1);
+}
+
+export async function updateCourtUrl(id: number, updates: Partial<InsertCourtUrl>, updatedBy: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update court URL: database not available");
+    return null;
+  }
+  
+  await db
+    .update(courtUrls)
+    .set({ ...updates, updatedBy, updatedAt: new Date() })
+    .where(eq(courtUrls.id, id));
+  
+  const result = await db.select().from(courtUrls).where(eq(courtUrls.id, id)).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function createCourtUrl(data: InsertCourtUrl) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot create court URL: database not available");
+    return null;
+  }
+  
+  const result = await db.insert(courtUrls).values(data);
+  const insertedId = result[0].insertId;
+  
+  const inserted = await db.select().from(courtUrls).where(eq(courtUrls.id, insertedId)).limit(1);
+  return inserted.length > 0 ? inserted[0] : null;
+}
+
+export async function deleteCourtUrl(id: number, updatedBy: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot delete court URL: database not available");
+    return false;
+  }
+  
+  // Soft delete by setting isActive to 0
+  await db
+    .update(courtUrls)
+    .set({ isActive: 0, updatedBy, updatedAt: new Date() })
+    .where(eq(courtUrls.id, id));
+  
+  return true;
+}

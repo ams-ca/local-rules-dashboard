@@ -44,7 +44,7 @@ export const COURT_URLS: Record<string, CourtUrls> = {
   "cacd.uscourts.gov": {
     localRules: "https://www.cacd.uscourts.gov/rules/local-rules",
     generalOrders: "https://www.cacd.uscourts.gov/rules/general-orders-and-notices",
-    standingOrders: "https://www.cacd.uscourts.gov/judges-and-staff/judges",
+    standingOrders: "https://apps.cacd.uscourts.gov/Jps/",
     judges: "https://www.cacd.uscourts.gov/judges-and-staff/judges",
     procedures: "https://www.cacd.uscourts.gov/",
     lastVerified: "2026-01-18",

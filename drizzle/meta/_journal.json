@@ -8,6 +8,13 @@
       "when": 1768775065364,
       "tag": "0000_curvy_expediter",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1768801881908,
+      "tag": "0001_closed_sersi",
+      "breakpoints": true
     }
   ]
 }

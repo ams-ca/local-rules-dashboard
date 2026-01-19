@@ -25,4 +25,35 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+/**
+ * Court URLs table for managing federal court website links.
+ * Stores URLs for different categories (local rules, standing orders, etc.) per court.
+ */
+export const courtUrls = mysqlTable("court_urls", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Court identifier (domain), e.g., "cand.uscourts.gov" */
+  courtId: varchar("courtId", { length: 64 }).notNull(),
+  /** Full court name, e.g., "Northern District of California" */
+  courtName: varchar("courtName", { length: 255 }).notNull(),
+  /** Circuit name, e.g., "Ninth Circuit" */
+  circuit: varchar("circuit", { length: 64 }),
+  /** Category type: local_rules, standing_orders, judges, general_orders, procedures */
+  category: varchar("category", { length: 64 }).notNull(),
+  /** Full URL to the court resource */
+  url: text("url").notNull(),
+  /** Display title for the link */
+  title: varchar("title", { length: 255 }).notNull(),
+  /** Description of what this link contains */
+  description: text("description"),
+  /** Date when this URL was last verified as working */
+  lastVerified: timestamp("lastVerified"),
+  /** Whether this URL is currently active */
+  isActive: int("isActive").default(1).notNull(), // 1 = active, 0 = inactive
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  /** User who last updated this record */
+  updatedBy: varchar("updatedBy", { length: 255 }),
+});
+
+export type CourtUrl = typeof courtUrls.$inferSelect;
+export type InsertCourtUrl = typeof courtUrls.$inferInsert;
