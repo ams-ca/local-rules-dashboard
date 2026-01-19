@@ -1,6 +1,6 @@
 import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, courtUrls, CourtUrl, InsertCourtUrl, pendingUrls, PendingUrl, InsertPendingUrl } from "../drizzle/schema";
+import { InsertUser, users, courtUrls, CourtUrl, InsertCourtUrl, pendingUrls, PendingUrl, InsertPendingUrl, judges, Judge, InsertJudge } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -333,7 +333,7 @@ export async function getCourtsByState(state: string, courtType: "federal" | "st
       state: courtUrls.state,
     })
     .from(courtUrls)
-    .where(sql`${courtUrls.state} = ${state} AND ${courtUrls.courtType} = ${courtType}`)
+    .where(sql`${courtUrls.state} = ${state} AND ${courtUrls.courtType} = '${sql.raw(courtType)}'`)
     .orderBy(courtUrls.courtName);
 
   return results;
@@ -356,5 +356,90 @@ export async function getAllFederalCourts(): Promise<{ courtId: string; courtNam
     .where(eq(courtUrls.courtType, "federal"))
     .orderBy(courtUrls.courtName);
 
+  return results;
+}
+
+/**
+ * Judge Management Functions
+ */
+
+export async function insertJudge(judge: InsertJudge) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot insert judge: database not available");
+    return null;
+  }
+  
+  const result = await db.insert(judges).values(judge);
+  return result;
+}
+
+export async function getJudgesByCourtId(courtId: string): Promise<Judge[]> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get judges: database not available");
+    return [];
+  }
+  
+  const results = await db
+    .select()
+    .from(judges)
+    .where(eq(judges.courtId, courtId))
+    .orderBy(judges.fullName);
+  
+  return results;
+}
+
+export async function getAllJudges(): Promise<Judge[]> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get all judges: database not available");
+    return [];
+  }
+  
+  const results = await db
+    .select()
+    .from(judges)
+    .orderBy(judges.courtId, judges.fullName);
+  
+  return results;
+}
+
+/**
+ * Get court URLs by court ID and category
+ * Supports multiple URLs per category
+ */
+export async function getCourtUrlsByCategory(courtId: string, category: string): Promise<CourtUrl[]> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get court URLs by category: database not available");
+    return [];
+  }
+  
+  const results = await db
+    .select()
+    .from(courtUrls)
+    .where(sql`${courtUrls.courtId} = ${courtId} AND ${courtUrls.category} = ${category} AND ${courtUrls.isActive} = 1`)
+    .orderBy(courtUrls.title);
+  
+  return results;
+}
+
+/**
+ * Get all URLs for a specific court (all categories)
+ */
+export async function getAllCourtUrlsByCourtId(courtId: string): Promise<CourtUrl[]> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get court URLs: database not available");
+    return [];
+  }
+  
+  const results = await db
+    .select()
+    .from(courtUrls)
+    .where(sql`${courtUrls.courtId} = ${courtId} AND ${courtUrls.isActive} = 1`)
+    .orderBy(courtUrls.category, courtUrls.title);
+  
   return results;
 }

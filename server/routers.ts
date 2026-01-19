@@ -72,7 +72,7 @@ export const appRouter = router({
         const courtName = courtUrlsData[0].courtName;
 
         // Group URLs by category
-        const categoryMap = new Map<string, Array<{ title: string; url: string; verifiedDate?: Date }>>();
+        const categoryMap = new Map<string, Array<{ title: string; url: string; description?: string; verifiedDate?: Date }>>();
         
         for (const urlData of courtUrlsData) {
           if (!categoryMap.has(urlData.category)) {
@@ -81,6 +81,7 @@ export const appRouter = router({
           categoryMap.get(urlData.category)!.push({
             title: urlData.title,
             url: urlData.url,
+            description: urlData.description || undefined,
             verifiedDate: urlData.lastVerified ? new Date(urlData.lastVerified) : undefined,
           });
         }

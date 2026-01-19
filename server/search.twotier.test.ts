@@ -31,8 +31,8 @@ describe("Two-Tier Court Selection", () => {
     expect(states.size).toBeGreaterThan(1);
   });
 
-  it("should return only California courts when CA state is selected", async () => {
-    const courts = await db.getCourtsByState("CA");
+  it("should return only California federal courts when CA state is selected", async () => {
+    const courts = await db.getCourtsByState("CA", "federal");
     
     expect(courts).toBeDefined();
     expect(Array.isArray(courts)).toBe(true);
@@ -49,8 +49,8 @@ describe("Two-Tier Court Selection", () => {
     expect(courtIds).toContain("cacd.uscourts.gov"); // Central District
   });
 
-  it("should return only New York courts when NY state is selected", async () => {
-    const courts = await db.getCourtsByState("NY");
+  it("should return only New York federal courts when NY state is selected", async () => {
+    const courts = await db.getCourtsByState("NY", "federal");
     
     expect(courts).toBeDefined();
     expect(Array.isArray(courts)).toBe(true);

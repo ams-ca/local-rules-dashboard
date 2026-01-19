@@ -23,7 +23,7 @@ describe("search.findRules", () => {
     const caller = appRouter.createCaller(ctx);
 
     const result = await caller.search.findRules({
-      court: "Northern District of California",
+      court: "cand.uscourts.gov", // Northern District of California
     });
 
     // Verify response structure
@@ -58,8 +58,8 @@ describe("search.findRules", () => {
     const caller = appRouter.createCaller(ctx);
     
     const courts = [
-      "Northern District of California",
-      "Central District of California",
+      "cand.uscourts.gov", // Northern District of California
+      "cacd.uscourts.gov", // Central District of California
     ];
     
     for (const court of courts) {

@@ -1,0 +1,60 @@
+{
+  "query": "SELECT DISTINCT courtId, courtName, courtType FROM court_urls WHERE state = 'CA' AND courtType = 'state' LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3P1gfGjDfMygKj3.root --database QDBtEX8sNZWgS22EHtghQc --execute SELECT DISTINCT courtId, courtName, courtType FROM court_urls WHERE state = 'CA' AND courtType = 'state' LIMIT 10;",
+  "rows": [
+    {
+      "courtId": "superior-butte-",
+      "courtName": "Superior Court of California, Butte County",
+      "courtType": "state"
+    },
+    {
+      "courtId": "superior-san-benito-",
+      "courtName": "Superior Court of California, San Benito County",
+      "courtType": "state"
+    },
+    {
+      "courtId": "superior-napa-",
+      "courtName": "Superior Court of California, Napa County",
+      "courtType": "state"
+    },
+    {
+      "courtId": "superior-ventura-",
+      "courtName": "Superior Court of California, Ventura County",
+      "courtType": "state"
+    },
+    {
+      "courtId": "superior-kings-",
+      "courtName": "Superior Court of California, Kings County",
+      "courtType": "state"
+    },
+    {
+      "courtId": "superior-inyo-",
+      "courtName": "Superior Court of California, Inyo County",
+      "courtType": "state"
+    },
+    {
+      "courtId": "superior-san-luis-obispo-",
+      "courtName": "Superior Court of California, San Luis Obispo County",
+      "courtType": "state"
+    },
+    {
+      "courtId": "superior-solano-",
+      "courtName": "Superior Court of California, Solano County",
+      "courtType": "state"
+    },
+    {
+      "courtId": "superior-merced-",
+      "courtName": "Superior Court of California, Merced County",
+      "courtType": "state"
+    },
+    {
+      "courtId": "superior-san-diego-",
+      "courtName": "Superior Court of California, San Diego County",
+      "courtType": "state"
+    }
+  ],
+  "messages": [],
+  "stdout": "courtId\tcourtName\tcourtType\nsuperior-butte-\tSuperior Court of California, Butte County\tstate\nsuperior-san-benito-\tSuperior Court of California, San Benito County\tstate\nsuperior-napa-\tSuperior Court of California, Napa County\tstate\nsuperior-ventura-\tSuperior Court of California, Ventura County\tstate\nsuperior-kings-\tSuperior Court of California, Kings County\tstate\nsuperior-inyo-\tSuperior Court of California, Inyo County\tstate\nsuperior-san-luis-obispo-\tSuperior Court of California, San Luis Obispo County\tstate\nsuperior-solano-\tSuperior Court of California, Solano County\tstate\nsuperior-merced-\tSuperior Court of California, Merced County\tstate\nsuperior-san-diego-\tSuperior Court of California, San Diego County\tstate\n",
+  "stderr": "",
+  "execution_time_ms": 64
+}

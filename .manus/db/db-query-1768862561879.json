@@ -1,0 +1,33 @@
+{
+  "query": "SELECT courtId, courtName FROM court_urls WHERE courtId LIKE '%monterey%' LIMIT 5; SELECT COUNT(DISTINCT courtId) as count FROM court_urls WHERE state = 'CA' AND courtType = 'state';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3P1gfGjDfMygKj3.root --database QDBtEX8sNZWgS22EHtghQc --execute SELECT courtId, courtName FROM court_urls WHERE courtId LIKE '%monterey%' LIMIT 5; SELECT COUNT(DISTINCT courtId) as count FROM court_urls WHERE state = 'CA' AND courtType = 'state';",
+  "rows": [
+    {
+      "courtId": "superior-monterey-",
+      "courtName": "Superior Court of California, Monterey County"
+    },
+    {
+      "courtId": "monterey.courts.ca.gov",
+      "courtName": "Monterey County Superior Court"
+    },
+    {
+      "courtId": "monterey.courts.ca.gov",
+      "courtName": "Monterey County Superior Court"
+    },
+    {
+      "courtId": "monterey.courts.ca.gov",
+      "courtName": "Monterey County Superior Court"
+    },
+    {
+      "courtId": "monterey.courts.ca.gov",
+      "courtName": "Monterey County Superior Court"
+    }
+  ],
+  "messages": [
+    "count",
+    "59"
+  ],
+  "stdout": "courtId\tcourtName\nsuperior-monterey-\tSuperior Court of California, Monterey County\nmonterey.courts.ca.gov\tMonterey County Superior Court\nmonterey.courts.ca.gov\tMonterey County Superior Court\nmonterey.courts.ca.gov\tMonterey County Superior Court\nmonterey.courts.ca.gov\tMonterey County Superior Court\ncount\n59\n",
+  "stderr": "",
+  "execution_time_ms": 61
+}

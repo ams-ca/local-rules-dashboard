@@ -41,7 +41,7 @@ export const courtUrls = mysqlTable("court_urls", {
   state: varchar("state", { length: 2 }),
   /** Court type: federal or state */
   courtType: mysqlEnum("courtType", ["federal", "state"]).notNull(),
-  /** Category type: local_rules, standing_orders, judges, general_orders, procedures */
+  /** Category type: local_rules, standing_orders, judges, general_orders, procedures, e_filing, division_rules, judicial_assignments, courtroom_guides, judge_procedures */
   category: varchar("category", { length: 64 }).notNull(),
   /** Full URL to the court resource */
   url: text("url").notNull(),
@@ -129,3 +129,30 @@ export const urlChangeHistory = mysqlTable("url_change_history", {
 
 export type UrlChangeHistory = typeof urlChangeHistory.$inferSelect;
 export type InsertUrlChangeHistory = typeof urlChangeHistory.$inferInsert;
+
+/**
+ * Judges table for storing judicial officer information.
+ * Links to court_urls via courtId for judge-specific procedures.
+ */
+export const judges = mysqlTable("judges", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Court identifier this judge belongs to */
+  courtId: varchar("courtId", { length: 64 }).notNull(),
+  /** Judge's full name with title, e.g., "Hon. Rafael Vazquez" */
+  fullName: varchar("fullName", { length: 255 }).notNull(),
+  /** Judge's title: judge, commissioner, magistrate */
+  title: mysqlEnum("title", ["judge", "commissioner", "magistrate", "magistrate_judge"]).default("judge").notNull(),
+  /** Department/Courtroom number, e.g., "Department 1", "Courtroom 3A" */
+  department: varchar("department", { length: 64 }),
+  /** Division assignment, e.g., "Civil", "Criminal", "Family" */
+  division: varchar("division", { length: 64 }),
+  /** Special roles, e.g., "Presiding Judge", "Supervising Judge - Civil" */
+  specialRole: varchar("specialRole", { length: 255 }),
+  /** Whether this judge is currently active */
+  isActive: int("isActive").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Judge = typeof judges.$inferSelect;
+export type InsertJudge = typeof judges.$inferInsert;

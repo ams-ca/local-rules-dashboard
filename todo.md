@@ -135,3 +135,18 @@
 - [x] Test federal court selection (should show all federal district courts)
 - [x] Test California state court selection (should show all 58 Superior Courts)
 - [ ] Update AI explanation logic to handle state vs federal court differences
+
+
+## Comprehensive Court Resource Expansion
+
+- [x] Research Monterey Superior Court website structure (e-filing, divisions, judges)
+- [x] Identify all resource types: e-filing procedures, division rules, judicial assignments, judge-specific procedures
+- [x] Update database schema to support multiple URLs per category (remove 1:1 constraint)
+- [x] Add new categories: e_filing, division_rules, judicial_assignments, judge_procedures
+- [x] Create judges table for storing judicial officer information
+- [x] Add database helper functions for judges and multi-URL categories
+- [ ] Create AI research agent to systematically discover court resources (deferred - manual population working well)
+- [x] Test with Monterey Superior Court as proof of concept
+- [x] Populate all discovered resources for Monterey Superior Court
+- [x] Update frontend to display multiple resources per category
+- [x] Write tests for multi-URL category support
