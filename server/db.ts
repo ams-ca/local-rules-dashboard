@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, courtUrls, CourtUrl, InsertCourtUrl } from "../drizzle/schema";
+import { InsertUser, users, courtUrls, CourtUrl, InsertCourtUrl, pendingUrls, PendingUrl, InsertPendingUrl } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -178,6 +178,92 @@ export async function deleteCourtUrl(id: number, updatedBy: string) {
     .update(courtUrls)
     .set({ isActive: 0, updatedBy, updatedAt: new Date() })
     .where(eq(courtUrls.id, id));
+  
+  return true;
+}
+
+
+// Pending URLs management
+
+export async function insertPendingUrl(data: InsertPendingUrl) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot insert pending URL: database not available");
+    return null;
+  }
+  
+  const result = await db.insert(pendingUrls).values(data);
+  const insertedId = result[0].insertId;
+  
+  const inserted = await db.select().from(pendingUrls).where(eq(pendingUrls.id, insertedId)).limit(1);
+  return inserted.length > 0 ? inserted[0] : null;
+}
+
+export async function getPendingUrls() {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get pending URLs: database not available");
+    return [];
+  }
+  
+  const results = await db
+    .select()
+    .from(pendingUrls)
+    .where(eq(pendingUrls.status, "pending"))
+    .orderBy(pendingUrls.discoveredAt);
+  
+  return results;
+}
+
+export async function approvePendingUrl(id: number, reviewedBy: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot approve pending URL: database not available");
+    return false;
+  }
+  
+  // Get the pending URL
+  const pending = await db.select().from(pendingUrls).where(eq(pendingUrls.id, id)).limit(1);
+  if (pending.length === 0) {
+    return false;
+  }
+  
+  const url = pending[0];
+  
+  // Create court URL from pending URL
+  await db.insert(courtUrls).values({
+    courtId: url.courtId,
+    courtName: url.courtName,
+    circuit: url.circuit,
+    category: url.category,
+    url: url.url,
+    title: url.title,
+    description: url.description,
+    lastVerified: new Date(),
+    isActive: 1,
+    updatedBy: reviewedBy,
+  });
+  
+  // Mark pending URL as approved
+  await db
+    .update(pendingUrls)
+    .set({ status: "approved", reviewedBy, reviewedAt: new Date() })
+    .where(eq(pendingUrls.id, id));
+  
+  return true;
+}
+
+export async function rejectPendingUrl(id: number, reviewedBy: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot reject pending URL: database not available");
+    return false;
+  }
+  
+  await db
+    .update(pendingUrls)
+    .set({ status: "rejected", reviewedBy, reviewedAt: new Date() })
+    .where(eq(pendingUrls.id, id));
   
   return true;
 }

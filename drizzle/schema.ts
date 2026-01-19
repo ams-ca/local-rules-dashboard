@@ -57,3 +57,67 @@ export const courtUrls = mysqlTable("court_urls", {
 
 export type CourtUrl = typeof courtUrls.$inferSelect;
 export type InsertCourtUrl = typeof courtUrls.$inferInsert;
+
+/**
+ * Pending URLs table for AI-discovered URLs awaiting admin review.
+ */
+export const pendingUrls = mysqlTable("pending_urls", {
+  id: int("id").autoincrement().primaryKey(),
+  courtId: varchar("courtId", { length: 64 }).notNull(),
+  courtName: varchar("courtName", { length: 255 }).notNull(),
+  circuit: varchar("circuit", { length: 64 }),
+  category: varchar("category", { length: 64 }).notNull(),
+  url: text("url").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  /** AI confidence score 0-100 */
+  confidenceScore: int("confidenceScore"),
+  discoveredAt: timestamp("discoveredAt").defaultNow().notNull(),
+  discoveredBy: varchar("discoveredBy", { length: 255 }).default("AI Agent").notNull(),
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  reviewedBy: varchar("reviewedBy", { length: 255 }),
+  reviewedAt: timestamp("reviewedAt"),
+});
+
+export type PendingUrl = typeof pendingUrls.$inferSelect;
+export type InsertPendingUrl = typeof pendingUrls.$inferInsert;
+
+/**
+ * URL verification log for tracking health checks of court URLs.
+ */
+export const urlVerificationLog = mysqlTable("url_verification_log", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Foreign key to court_urls table */
+  courtUrlId: int("courtUrlId").notNull(),
+  checkedAt: timestamp("checkedAt").defaultNow().notNull(),
+  /** HTTP status code returned */
+  statusCode: int("statusCode"),
+  /** Whether URL was accessible */
+  isAccessible: int("isAccessible").notNull(), // 1 = accessible, 0 = not accessible
+  /** Redirect URL if redirected */
+  redirectUrl: text("redirectUrl"),
+  /** Error message if failed */
+  errorMessage: text("errorMessage"),
+  /** Response time in milliseconds */
+  responseTime: int("responseTime"),
+});
+
+export type UrlVerificationLog = typeof urlVerificationLog.$inferSelect;
+export type InsertUrlVerificationLog = typeof urlVerificationLog.$inferInsert;
+
+/**
+ * URL change history for audit trail of modifications.
+ */
+export const urlChangeHistory = mysqlTable("url_change_history", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Foreign key to court_urls table */
+  courtUrlId: int("courtUrlId").notNull(),
+  oldUrl: text("oldUrl"),
+  newUrl: text("newUrl"),
+  changedBy: varchar("changedBy", { length: 255 }).notNull(),
+  changedAt: timestamp("changedAt").defaultNow().notNull(),
+  reason: text("reason"),
+});
+
+export type UrlChangeHistory = typeof urlChangeHistory.$inferSelect;
+export type InsertUrlChangeHistory = typeof urlChangeHistory.$inferInsert;

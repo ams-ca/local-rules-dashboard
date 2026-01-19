@@ -19,7 +19,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { trpc } from "@/lib/trpc";
-import { Loader2, Pencil, Trash2, Plus, Check, X } from "lucide-react";
+import { Loader2, Pencil, Trash2, Plus, Check, X, Bot, Shield } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Link } from "wouter";
@@ -113,9 +113,17 @@ export default function Admin() {
               <h1 className="text-3xl font-display text-primary">Admin Panel</h1>
               <p className="text-muted-foreground text-sm">Manage court URLs and categories</p>
             </div>
-            <Link href="/">
-              <Button variant="outline">Back to Search</Button>
-            </Link>
+            <div className="flex gap-3">
+              <Link href="/admin/review">
+                <Button variant="outline">
+                  <Bot className="h-4 w-4 mr-2" />
+                  Review AI Findings
+                </Button>
+              </Link>
+              <Link href="/">
+                <Button variant="outline">Back to Search</Button>
+              </Link>
+            </div>
           </div>
         </div>
       </header>

@@ -47,7 +47,8 @@ describe("search.findRules", () => {
         expect(link).toHaveProperty("description");
         expect(link).toHaveProperty("verifiedDate");
         expect(link.url).toMatch(/^https?:\/\//);
-        expect(link.verifiedDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+        // verifiedDate is a Date object from the database
+        expect(link.verifiedDate).toBeInstanceOf(Date);
       }
     }
   }, 30000); // 30 second timeout for LLM

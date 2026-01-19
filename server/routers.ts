@@ -9,6 +9,8 @@ import { scrapeCourtWebsite } from "./courtScraper";
 import type { SearchResponse } from "@shared/types";
 import * as db from "./db";
 import { invokeLLM } from "./_core/llm";
+import * as aiResearchAgent from "./aiResearchAgent";
+import * as urlVerifier from "./urlVerifier";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -148,6 +150,77 @@ Keep it concise, practical, and user-friendly. Do not use bullet points.`;
         }
         return await db.deleteCourtUrl(input.id, ctx.user.name || ctx.user.email || 'admin');
       }),
+
+    // AI Research endpoints
+    researchCourt: protectedProcedure
+      .input(
+        z.object({
+          courtId: z.string(),
+          courtName: z.string(),
+          circuit: z.string().nullable(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+        }
+        const result = await aiResearchAgent.researchCourtWebsite(
+          input.courtId,
+          input.courtName,
+          input.circuit
+        );
+        await aiResearchAgent.saveResearchResults(result);
+        return result;
+      }),
+
+    getPendingUrls: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== 'admin') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+      }
+      return await db.getPendingUrls();
+    }),
+
+    approvePendingUrl: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+        }
+        return await db.approvePendingUrl(input.id, ctx.user.name || ctx.user.email || 'admin');
+      }),
+
+    rejectPendingUrl: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+        }
+        return await db.rejectPendingUrl(input.id, ctx.user.name || ctx.user.email || 'admin');
+      }),
+
+    // URL Verification endpoints
+    verifyCourtUrls: protectedProcedure
+      .input(z.object({ courtId: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+        }
+        return await urlVerifier.verifyCourtUrls(input.courtId);
+      }),
+
+    verifyAllUrls: protectedProcedure.mutation(async ({ ctx }) => {
+      if (ctx.user.role !== 'admin') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+      }
+      return await urlVerifier.verifyAllUrls();
+    }),
+
+    getBrokenUrls: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== 'admin') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+      }
+      return await urlVerifier.getBrokenUrls();
+    }),
   }),
 });
 

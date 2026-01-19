@@ -95,3 +95,17 @@
 - [x] Update scraper to only return categories that actually exist on the court website
 - [ ] Add URL validation before saving to database
 - [ ] Implement audit log for URL changes
+
+
+## AI Research & Verification Workflow
+
+- [x] Design workflow architecture for AI-powered court URL research
+- [x] Create AI agent that researches court websites to discover URLs
+- [x] Implement URL validation system to check if links are still working
+- [x] Build database schema for storing research findings and verification results
+- [x] Create admin UI for reviewing AI-discovered URLs before adding to database
+- [x] Add approval workflow for AI findings
+- [x] Implement scheduled verification checks for existing URLs (API endpoints ready)
+- [x] Add reporting system to show URL health status (getBrokenUrls endpoint)
+- [x] Create manual trigger for on-demand verification runs (verifyCourtUrls, verifyAllUrls endpoints)
+- [x] All tests passing (7/7)
