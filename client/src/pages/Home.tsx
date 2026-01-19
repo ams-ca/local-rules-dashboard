@@ -231,9 +231,16 @@ export default function Home() {
                                 {link.context}
                               </p>
                             )}
-                            <p className="text-xs font-mono text-muted-foreground break-all">
-                              {link.url}
-                            </p>
+                            <div className="flex items-center justify-between gap-4 flex-wrap">
+                              <p className="text-xs font-mono text-muted-foreground break-all flex-1">
+                                {link.url}
+                              </p>
+                              {link.verifiedDate && (
+                                <p className="text-xs text-muted-foreground shrink-0">
+                                  Verified {new Date(link.verifiedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                </p>
+                              )}
+                            </div>
                           </div>
                         </Card>
                       ))}

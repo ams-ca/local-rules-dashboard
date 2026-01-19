@@ -18,6 +18,7 @@ export interface SearchResultLink {
   url: string;
   description: string;
   context?: string;
+  verifiedDate?: string; // ISO date string when link was last verified
 }
 
 export interface SearchResultCategory {

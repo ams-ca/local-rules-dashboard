@@ -42,3 +42,11 @@
 - [x] Add URL validation before returning results (using verified URL mappings)
 - [x] Document correct URL patterns for each court
 - [x] Verify links work correctly in browser (no 404 errors)
+
+## Verification Date Tracking
+
+- [x] Add lastVerified date field to URL mappings in courtUrls.ts
+- [x] Update SearchResultLink type to include verifiedDate field
+- [x] Display verification date in search results UI
+- [x] Format verification date as human-readable (e.g., "Verified Jan 18, 2026")
+- [x] Test verification date display with multiple courts

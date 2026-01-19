@@ -11,6 +11,7 @@ export interface CourtUrls {
   miscOrders?: string;
   forms?: string;
   procedures?: string;
+  lastVerified: string; // ISO date string when URLs were last verified
 }
 
 /**
@@ -26,6 +27,7 @@ export const COURT_URLS: Record<string, CourtUrls> = {
     miscOrders: "https://cand.uscourts.gov/rules-forms-fees/miscellaneous-orders",
     forms: "https://cand.uscourts.gov/rules-forms-fees/forms",
     procedures: "https://cand.uscourts.gov/cases-e-filing",
+    lastVerified: "2026-01-18",
   },
   
   // Southern District of California
@@ -35,6 +37,7 @@ export const COURT_URLS: Record<string, CourtUrls> = {
     standingOrders: "https://www.casd.uscourts.gov/judges/chambers-rules.aspx",
     judges: "https://www.casd.uscourts.gov/judges.aspx",
     procedures: "https://www.casd.uscourts.gov/",
+    lastVerified: "2026-01-18",
   },
   
   // Central District of California
@@ -44,6 +47,7 @@ export const COURT_URLS: Record<string, CourtUrls> = {
     standingOrders: "https://www.cacd.uscourts.gov/judges-and-staff/judges",
     judges: "https://www.cacd.uscourts.gov/judges-and-staff/judges",
     procedures: "https://www.cacd.uscourts.gov/",
+    lastVerified: "2026-01-18",
   },
   
   // Eastern District of California
@@ -53,6 +57,7 @@ export const COURT_URLS: Record<string, CourtUrls> = {
     standingOrders: "https://www.caed.uscourts.gov/caednew/index.cfm/judges/",
     judges: "https://www.caed.uscourts.gov/caednew/index.cfm/judges/",
     procedures: "https://www.caed.uscourts.gov/",
+    lastVerified: "2026-01-18",
   },
   
   // Southern District of New York
@@ -62,6 +67,7 @@ export const COURT_URLS: Record<string, CourtUrls> = {
     standingOrders: "https://www.nysd.uscourts.gov/judges/judges-individual-rules-practice",
     judges: "https://www.nysd.uscourts.gov/judges",
     procedures: "https://www.nysd.uscourts.gov/",
+    lastVerified: "2026-01-18",
   },
   
   // Northern District of New York
@@ -71,6 +77,7 @@ export const COURT_URLS: Record<string, CourtUrls> = {
     standingOrders: "https://www.nynd.uscourts.gov/judges",
     judges: "https://www.nynd.uscourts.gov/judges",
     procedures: "https://www.nynd.uscourts.gov/",
+    lastVerified: "2026-01-18",
   },
   
   // Eastern District of New York
@@ -80,6 +87,7 @@ export const COURT_URLS: Record<string, CourtUrls> = {
     standingOrders: "https://www.nyed.uscourts.gov/judges",
     judges: "https://www.nyed.uscourts.gov/judges",
     procedures: "https://www.nyed.uscourts.gov/",
+    lastVerified: "2026-01-18",
   },
   
   // Western District of New York
@@ -89,6 +97,7 @@ export const COURT_URLS: Record<string, CourtUrls> = {
     standingOrders: "https://www.nywd.uscourts.gov/judges",
     judges: "https://www.nywd.uscourts.gov/judges",
     procedures: "https://www.nywd.uscourts.gov/",
+    lastVerified: "2026-01-18",
   },
 };
 

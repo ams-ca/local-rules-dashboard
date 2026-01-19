@@ -84,6 +84,7 @@ function getLocalRulesLinks(
     title: "Local Rules",
     url: courtUrls.localRules,
     description: `Complete local rules for ${courtName}. Includes civil, criminal, and other procedural rules.`,
+    verifiedDate: courtUrls.lastVerified,
   });
   
   // Add context about case type if specified
@@ -127,6 +128,7 @@ function getStandingOrdersLinks(
     url: courtUrls.standingOrders,
     description: `Standing orders from judges in ${courtName}. Look for ${judgeName}'s standing order on this page.`,
     context: `Search for ${judgeName}`,
+    verifiedDate: courtUrls.lastVerified,
   });
   
   return {
@@ -152,6 +154,7 @@ function getJudgeInfoLinks(
     url: courtUrls.judges,
     description: `Directory of judges in ${courtName}. Find ${judgeName}'s page for contact information, staff directory, courtroom location, calendar, and procedural requirements.`,
     context: `Look for ${judgeName} in the judges list`,
+    verifiedDate: courtUrls.lastVerified,
   });
   
   return {
@@ -175,6 +178,7 @@ function getGeneralOrdersLinks(
     title: "General Orders",
     url: courtUrls.generalOrders,
     description: `Administrative orders and court-wide policies for ${courtName}.`,
+    verifiedDate: courtUrls.lastVerified,
   });
   
   if (courtUrls.miscOrders) {
@@ -182,6 +186,7 @@ function getGeneralOrdersLinks(
       title: "Miscellaneous Orders",
       url: courtUrls.miscOrders,
       description: "Additional court orders and administrative notices.",
+      verifiedDate: courtUrls.lastVerified,
     });
   }
   
@@ -207,6 +212,7 @@ function getProceduresLinks(
       title: "Court Procedures",
       url: courtUrls.procedures,
       description: `Filing procedures, electronic filing requirements, and administrative information for ${courtName}.`,
+      verifiedDate: courtUrls.lastVerified,
     });
   }
   
@@ -215,6 +221,7 @@ function getProceduresLinks(
       title: "Court Forms",
       url: courtUrls.forms,
       description: "Official court forms and filing templates.",
+      verifiedDate: courtUrls.lastVerified,
     });
   }
   
