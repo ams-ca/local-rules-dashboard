@@ -34,13 +34,11 @@ export const appRouter = router({
     findRules: publicProcedure
       .input(
         z.object({
-          judgeName: z.string().optional(),
           court: z.string(),
-          caseType: z.string().optional(),
         })
       )
       .mutation(async ({ input }): Promise<SearchResponse> => {
-        const { judgeName, court, caseType } = input;
+        const { court } = input;
 
         // Find court information
         const courtInfo = findCourt(court);
@@ -50,30 +48,22 @@ export const appRouter = router({
           );
         }
 
-        // Normalize inputs
-        const normalizedJudge = judgeName ? normalizeJudgeName(judgeName) : undefined;
-        const normalizedCaseType = caseType ? normalizeCaseType(caseType) : undefined;
-
         // Scrape court website
         const results = await scrapeCourtWebsite(
           courtInfo.url,
-          courtInfo.name,
-          normalizedJudge,
-          normalizedCaseType
+          courtInfo.name
         );
 
         // Generate AI explanation of court structure
         const explanationPrompt = `You are a legal research assistant helping users understand how federal court websites organize their rules and procedures.
 
 Court: ${courtInfo.name}
-Judge: ${normalizedJudge || "Not specified"}
-Case Type: ${normalizedCaseType || "Not specified"}
 
-Provide a brief, helpful explanation (2-3 sentences) about how this court organizes its local rules, standing orders, and judge-specific information. Include:
-1. The basic structure of local rules (civil, criminal, etc.)
-2. How standing orders work and where to find them
-3. That each judge has their own chambers page with calendar and procedural requirements
-4. How to schedule hearings or find judge-specific procedures
+Provide a brief, helpful explanation (2-3 sentences) about how this court organizes its local rules, standing orders, general orders, and judge-specific information. Include:
+1. The basic structure of local rules (civil, criminal, admiralty, etc.)
+2. How standing orders and general orders work
+3. That each judge has their own chambers page with calendar, staff directory, and procedural requirements
+4. How to find court procedures and forms
 
 Keep it concise, practical, and user-friendly. Do not use bullet points.`;
 
@@ -89,9 +79,7 @@ Keep it concise, practical, and user-friendly. Do not use bullet points.`;
 
         return {
           query: {
-            judgeName: normalizedJudge,
             court: courtInfo.name,
-            caseType: normalizedCaseType,
           },
           explanation,
           results,

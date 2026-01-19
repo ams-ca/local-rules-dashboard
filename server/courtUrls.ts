@@ -32,10 +32,10 @@ export const COURT_URLS: Record<string, CourtUrls> = {
   
   // Southern District of California
   "casd.uscourts.gov": {
-    localRules: "https://www.casd.uscourts.gov/rules/local-rules",
-    generalOrders: "https://www.casd.uscourts.gov/rules/general-orders",
+    localRules: "https://www.casd.uscourts.gov/rules/local-rules.aspx",
+    generalOrders: "https://www.casd.uscourts.gov/rules/general-orders.aspx",
     standingOrders: "https://www.casd.uscourts.gov/judges/chambers-rules.aspx",
-    judges: "https://www.casd.uscourts.gov/judges.aspx",
+    judges: "https://www.casd.uscourts.gov/Judges.aspx",
     procedures: "https://www.casd.uscourts.gov/",
     lastVerified: "2026-01-18",
   },

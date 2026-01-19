@@ -50,3 +50,25 @@
 - [x] Display verification date in search results UI
 - [x] Format verification date as human-readable (e.g., "Verified Jan 18, 2026")
 - [x] Test verification date display with multiple courts
+
+## UI Simplification - Remove Judge and Case Type
+
+- [x] Remove judge name input field from search form
+- [x] Remove case type input field from search form
+- [x] Update search mutation to only require court parameter
+- [x] Update backend router to handle court-only searches
+- [x] Remove judge-specific filtering logic from courtScraper
+- [x] Update AI explanation to focus on court structure only
+
+## Fix Broken Links
+
+- [x] Investigate SD Cal general orders broken link (entire SD Cal website is down, not our URL issue)
+- [x] Test all URLs in courtUrls.ts for each supported court
+- [x] Fix any broken URLs found during testing (SD Cal website is down, not our issue)
+- [x] Document correct URL patterns for fixed links
+
+- [x] Test simplified interface with NDCA
+- [x] Verify all links work correctly
+- [x] Update and run unit tests to verify functionality
+- [x] All tests passing (3/3 tests pass)
+- [x] Fix SD Cal URLs with correct .aspx extensions

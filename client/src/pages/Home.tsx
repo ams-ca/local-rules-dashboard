@@ -5,7 +5,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -19,9 +18,7 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 
 export default function Home() {
-  const [judgeName, setJudgeName] = useState("");
   const [court, setCourt] = useState("");
-  const [caseType, setCaseType] = useState("");
 
   const searchMutation = trpc.search.findRules.useMutation();
   const { data: supportedCourts, isLoading: courtsLoading } = trpc.search.getSupportedCourts.useQuery();
@@ -32,9 +29,7 @@ export default function Home() {
     }
 
     searchMutation.mutate({
-      judgeName: judgeName.trim() || undefined,
       court: court.trim(),
-      caseType: caseType.trim() || undefined,
     });
   };
 
@@ -88,38 +83,6 @@ export default function Home() {
               </Select>
               <p className="text-xs text-muted-foreground">
                 {supportedCourts?.length || 0} courts currently supported
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="judge">Judge Name</Label>
-              <Input
-                id="judge"
-                type="text"
-                placeholder="e.g., Orrick, Judge Orrick, William Orrick"
-                value={judgeName}
-                onChange={(e) => setJudgeName(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="h-11"
-              />
-              <p className="text-xs text-muted-foreground">
-                Optional: Enter judge's name to find judge-specific rules
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="caseType">Case Type</Label>
-              <Input
-                id="caseType"
-                type="text"
-                placeholder="e.g., civil, criminal, bankruptcy"
-                value={caseType}
-                onChange={(e) => setCaseType(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="h-11"
-              />
-              <p className="text-xs text-muted-foreground">
-                Optional: Specify case type to filter results
               </p>
             </div>
 

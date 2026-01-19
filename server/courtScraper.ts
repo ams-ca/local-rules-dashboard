@@ -15,9 +15,7 @@ import { getCourtUrls } from "./courtUrls";
  */
 export async function scrapeCourtWebsite(
   courtUrl: string,
-  courtName: string,
-  judgeName?: string,
-  caseType?: string
+  courtName: string
 ): Promise<SearchResultCategory[]> {
   const results: SearchResultCategory[] = [];
   
@@ -33,23 +31,21 @@ export async function scrapeCourtWebsite(
   }
   
   // Local Rules
-  const localRules = getLocalRulesLinks(courtUrls, courtName, caseType);
+  const localRules = getLocalRulesLinks(courtUrls, courtName);
   if (localRules.links.length > 0) {
     results.push(localRules);
   }
   
-  // Standing Orders (if judge specified)
-  if (judgeName) {
-    const standingOrders = getStandingOrdersLinks(courtUrls, courtName, judgeName);
-    if (standingOrders.links.length > 0) {
-      results.push(standingOrders);
-    }
-    
-    // Judge Information
-    const judgeInfo = getJudgeInfoLinks(courtUrls, courtName, judgeName);
-    if (judgeInfo.links.length > 0) {
-      results.push(judgeInfo);
-    }
+  // Standing Orders
+  const standingOrders = getStandingOrdersLinks(courtUrls, courtName);
+  if (standingOrders.links.length > 0) {
+    results.push(standingOrders);
+  }
+  
+  // Judge Information
+  const judgeInfo = getJudgeInfoLinks(courtUrls, courtName);
+  if (judgeInfo.links.length > 0) {
+    results.push(judgeInfo);
   }
   
   // General Orders
@@ -72,8 +68,7 @@ export async function scrapeCourtWebsite(
  */
 function getLocalRulesLinks(
   courtUrls: ReturnType<typeof getCourtUrls>,
-  courtName: string,
-  caseType?: string
+  courtName: string
 ): SearchResultCategory {
   const links: SearchResultLink[] = [];
   
@@ -83,27 +78,9 @@ function getLocalRulesLinks(
   links.push({
     title: "Local Rules",
     url: courtUrls.localRules,
-    description: `Complete local rules for ${courtName}. Includes civil, criminal, and other procedural rules.`,
+    description: `Complete local rules for ${courtName}. Includes civil, criminal, bankruptcy, admiralty, and other procedural rules.`,
     verifiedDate: courtUrls.lastVerified,
   });
-  
-  // Add context about case type if specified
-  if (caseType) {
-    const lowerCase = caseType.toLowerCase();
-    let context = "";
-    
-    if (lowerCase.includes("civil")) {
-      context = "Look for Civil Local Rules on this page";
-    } else if (lowerCase.includes("criminal")) {
-      context = "Look for Criminal Local Rules on this page";
-    } else if (lowerCase.includes("bankruptcy")) {
-      context = "Look for Bankruptcy Local Rules on this page";
-    }
-    
-    if (context) {
-      links[0]!.context = context;
-    }
-  }
   
   return {
     category: "LOCAL RULES",
@@ -116,8 +93,7 @@ function getLocalRulesLinks(
  */
 function getStandingOrdersLinks(
   courtUrls: ReturnType<typeof getCourtUrls>,
-  courtName: string,
-  judgeName: string
+  courtName: string
 ): SearchResultCategory {
   const links: SearchResultLink[] = [];
   
@@ -126,8 +102,7 @@ function getStandingOrdersLinks(
   links.push({
     title: "Standing Orders",
     url: courtUrls.standingOrders,
-    description: `Standing orders from judges in ${courtName}. Look for ${judgeName}'s standing order on this page.`,
-    context: `Search for ${judgeName}`,
+    description: `Standing orders from judges in ${courtName}. Browse by judge name to find judge-specific standing orders.`,
     verifiedDate: courtUrls.lastVerified,
   });
   
@@ -142,18 +117,16 @@ function getStandingOrdersLinks(
  */
 function getJudgeInfoLinks(
   courtUrls: ReturnType<typeof getCourtUrls>,
-  courtName: string,
-  judgeName: string
+  courtName: string
 ): SearchResultCategory {
   const links: SearchResultLink[] = [];
   
   if (!courtUrls) return { category: "JUDGE INFORMATION", links };
   
   links.push({
-    title: `${judgeName}'s Chambers Information`,
+    title: "Judges Directory",
     url: courtUrls.judges,
-    description: `Directory of judges in ${courtName}. Find ${judgeName}'s page for contact information, staff directory, courtroom location, calendar, and procedural requirements.`,
-    context: `Look for ${judgeName} in the judges list`,
+    description: `Directory of judges in ${courtName}. Each judge's page includes contact information, staff directory, courtroom location, calendar, and procedural requirements.`,
     verifiedDate: courtUrls.lastVerified,
   });
   
