@@ -14,17 +14,27 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ExternalLink, Loader2, Scale, Search, Settings } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Link } from "wouter";
 
 export default function Home() {
   const { user } = useAuth();
+  const [selectedState, setSelectedState] = useState("");
   const [court, setCourt] = useState("");
 
   const searchMutation = trpc.search.findRules.useMutation();
-  const { data: supportedCourts, isLoading: courtsLoading } = trpc.search.getSupportedCourts.useQuery();
+  const { data: states, isLoading: statesLoading } = trpc.search.getStates.useQuery();
+  const { data: courts, isLoading: courtsLoading } = trpc.search.getCourtsByState.useQuery(
+    { state: selectedState },
+    { enabled: !!selectedState }
+  );
+
+  // Reset court selection when state changes
+  useEffect(() => {
+    setCourt("");
+  }, [selectedState]);
 
   const handleSearch = () => {
     if (!court.trim()) {
@@ -74,45 +84,72 @@ export default function Home() {
         {/* Search Form */}
         <Card className="p-6 mb-8">
           <div className="space-y-4">
+            {/* State Selector */}
             <div className="space-y-2">
-              <Label htmlFor="court">Court *</Label>
-              <Select value={court} onValueChange={setCourt}>
+              <Label htmlFor="state">State *</Label>
+              <Select value={selectedState} onValueChange={setSelectedState}>
                 <SelectTrigger className="h-11">
-                  <SelectValue placeholder="Select a federal district court" />
+                  <SelectValue placeholder="Select a state" />
                 </SelectTrigger>
                 <SelectContent>
-                  {courtsLoading ? (
+                  <SelectItem value="Federal">Federal (All Courts)</SelectItem>
+                  {statesLoading ? (
                     <SelectItem value="loading" disabled>
-                      Loading courts...
+                      Loading states...
                     </SelectItem>
                   ) : (
-                    supportedCourts?.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.name} ({c.circuit})
+                    states?.map((s) => (
+                      <SelectItem key={s.state} value={s.state}>
+                        {s.stateName}
                       </SelectItem>
                     ))
                   )}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
-                {supportedCourts?.length || 0} courts currently supported
-              </p>
             </div>
+
+            {/* Court Selector - Only show when state is selected */}
+            {selectedState && (
+              <div className="space-y-2">
+                <Label htmlFor="court">Court *</Label>
+                <Select value={court} onValueChange={setCourt}>
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Select a court" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {courtsLoading ? (
+                      <SelectItem value="loading" disabled>
+                        Loading courts...
+                      </SelectItem>
+                    ) : (
+                      courts?.map((c) => (
+                        <SelectItem key={c.courtId} value={c.courtId}>
+                          {c.courtName}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  {courts?.length || 0} courts in {selectedState === "Federal" ? "all states" : selectedState}
+                </p>
+              </div>
+            )}
 
             <Button
               onClick={handleSearch}
-              disabled={!court.trim() || searchMutation.isPending}
+              disabled={!court || searchMutation.isPending}
               className="w-full h-11"
               size="lg"
             >
               {searchMutation.isPending ? (
                 <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Searching court website...
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Searching...
                 </>
               ) : (
                 <>
-                  <Search className="mr-2 h-5 w-5" />
+                  <Search className="mr-2 h-4 w-4" />
                   Search
                 </>
               )}
@@ -120,94 +157,83 @@ export default function Home() {
           </div>
         </Card>
 
-        {/* Results */}
-        {searchMutation.isError && (
-          <Card className="p-6 border-destructive">
-            <p className="text-destructive font-medium">Error</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              {searchMutation.error.message}
-            </p>
-          </Card>
-        )}
-
-        {searchMutation.isSuccess && searchMutation.data && (
+        {/* Search Results */}
+        {searchMutation.data && (
           <div className="space-y-6">
-            {/* AI-Generated Explanation */}
+            {/* AI Explanation */}
             {searchMutation.data.explanation && (
-              <Card className="p-5 bg-primary/5 border-primary/20">
-                <p className="text-sm text-foreground leading-relaxed">
+              <Card className="p-6 bg-muted/30">
+                <h2 className="text-lg font-semibold mb-3 text-primary">
+                  About This Court's Rules
+                </h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   {searchMutation.data.explanation}
                 </p>
               </Card>
             )}
 
-            {searchMutation.data.results.length === 0 ? (
-              <Card className="p-12 text-center">
-                <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-xl font-display mb-2">No results found</h3>
-                <p className="text-muted-foreground">
-                  Try adjusting your search criteria or check the court name
-                </p>
-              </Card>
-            ) : (
-              <div className="space-y-6">
-                {searchMutation.data.results
-                  .filter((category: any) => category.links && category.links.length > 0)
-                  .map((category: any, idx: number) => (
-                  <div key={idx} className="border border-border rounded-lg overflow-hidden">
-                    {/* Category Header */}
-                    <div className="bg-primary/10 px-5 py-3 border-b border-border">
-                      <h3 className="text-base font-semibold text-foreground uppercase tracking-wide">
-                        {category.category}
-                      </h3>
-                    </div>
-                    
-                    {/* Links Table */}
-                    <div className="bg-card">
-                      {category.links.map((link: any, linkIdx: number) => (
-                        <div 
-                          key={linkIdx} 
-                          className={`px-5 py-4 ${linkIdx !== category.links.length - 1 ? 'border-b border-border' : ''}`}
+            {/* Results by Category */}
+            {searchMutation.data.results
+              .filter((category) => category.links.length > 0)
+              .map((category) => (
+                <div key={category.category} className="border rounded-lg overflow-hidden">
+                  <div className="bg-muted px-4 py-3 border-b">
+                    <h3 className="font-semibold text-sm uppercase tracking-wide">
+                      {category.category}
+                    </h3>
+                  </div>
+                  <div className="divide-y">
+                    {category.links.map((link, idx) => (
+                      <div
+                        key={idx}
+                        className="px-4 py-3 hover:bg-muted/30 transition-colors"
+                      >
+                        <a
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-start gap-3 group"
                         >
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1 space-y-1">
-                              <div className="flex items-baseline gap-2">
-                                <a
-                                  href={link.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-primary hover:underline font-medium inline-flex items-center gap-1.5"
-                                >
-                                  {link.title}
-                                  <ExternalLink className="h-3.5 w-3.5 inline" />
-                                </a>
-                              </div>
-                              <p className="text-sm text-muted-foreground">
+                          <ExternalLink className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0 group-hover:text-primary transition-colors" />
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm group-hover:text-primary transition-colors">
+                              {link.title}
+                            </div>
+                            {link.description && (
+                              <div className="text-xs text-muted-foreground mt-1">
                                 {link.description}
-                              </p>
-                              <div className="flex items-center gap-4 text-xs text-muted-foreground pt-1">
-                                <span className="font-mono">{link.url}</span>
-                                {link.verifiedDate && (
-                                  <span className="shrink-0">
-                                    Verified {new Date(link.verifiedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                  </span>
-                                )}
                               </div>
+                            )}
+                            <div className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
+                              <span className="truncate">{link.url}</span>
+                              {link.verifiedDate && (
+                                <span className="text-xs text-muted-foreground">
+                                  • Verified{" "}
+                                  {new Date(link.verifiedDate).toLocaleDateString("en-US", {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                  })}
+                                </span>
+                              )}
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        </a>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
-
-            <div className="text-xs text-muted-foreground pt-4">
-              <strong>Note:</strong> All links are to official court website pages. 
-              Please verify information is current before relying on it.
-            </div>
+                </div>
+              ))}
           </div>
+        )}
+
+        {/* Error State */}
+        {searchMutation.isError && (
+          <Card className="p-6 border-destructive">
+            <p className="text-sm text-destructive">
+              Error: {searchMutation.error.message}
+            </p>
+          </Card>
         )}
       </main>
     </div>

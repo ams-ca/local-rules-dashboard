@@ -109,3 +109,15 @@
 - [x] Add reporting system to show URL health status (getBrokenUrls endpoint)
 - [x] Create manual trigger for on-demand verification runs (verifyCourtUrls, verifyAllUrls endpoints)
 - [x] All tests passing (7/7)
+
+
+## Two-Tier Court Selection System
+
+- [x] Design two-tier selection architecture (State → Court)
+- [x] Add state field to court_urls database table
+- [x] Update courtMapper to include state information
+- [x] Migrate existing court data to include state assignments
+- [x] Create backend API to get courts by state
+- [x] Implement cascading dropdown UI (state selector → court selector)
+- [x] Add "Federal" option to show all courts
+- [x] Test with California, Florida, and New York courts

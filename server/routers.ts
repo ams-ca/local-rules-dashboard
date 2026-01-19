@@ -27,6 +27,21 @@ export const appRouter = router({
   }),
 
   search: router({
+    getStates: publicProcedure.query(async () => {
+      return await db.getDistinctStates();
+    }),
+    
+    getCourtsByState: publicProcedure
+      .input(z.object({ state: z.string().optional() }))
+      .query(async ({ input }) => {
+        if (!input.state || input.state === "Federal") {
+          // Return all courts
+          return await db.getAllCourtsList();
+        }
+        // Return courts for specific state
+        return await db.getCourtsByState(input.state);
+      }),
+    
     getSupportedCourts: publicProcedure.query(() => {
       return getAllCourts().map(court => ({
         id: court.id,
@@ -38,30 +53,48 @@ export const appRouter = router({
     findRules: publicProcedure
       .input(
         z.object({
-          court: z.string(),
+          court: z.string(), // courtId like "cand", "nysd"
         })
       )
       .mutation(async ({ input }): Promise<SearchResponse> => {
-        const { court } = input;
+        const { court: courtId } = input;
 
-        // Find court information
-        const courtInfo = findCourt(court);
-        if (!courtInfo) {
+        // Get court URLs from database
+        const courtUrlsData = await db.getActiveCourtUrlsByCourtId(courtId);
+        
+        if (courtUrlsData.length === 0) {
           throw new Error(
-            `Court "${court}" not found. Please check the court name or abbreviation and try again.`
+            `Court "${courtId}" not found. Please check the court name or abbreviation and try again.`
           );
         }
 
-        // Scrape court website
-        const results = await scrapeCourtWebsite(
-          courtInfo.url,
-          courtInfo.name
-        );
+        // Get court name from first result
+        const courtName = courtUrlsData[0].courtName;
+
+        // Group URLs by category
+        const categoryMap = new Map<string, Array<{ title: string; url: string; verifiedDate?: Date }>>();
+        
+        for (const urlData of courtUrlsData) {
+          if (!categoryMap.has(urlData.category)) {
+            categoryMap.set(urlData.category, []);
+          }
+          categoryMap.get(urlData.category)!.push({
+            title: urlData.title,
+            url: urlData.url,
+            verifiedDate: urlData.lastVerified ? new Date(urlData.lastVerified) : undefined,
+          });
+        }
+
+        // Convert to results format
+        const results = Array.from(categoryMap.entries()).map(([category, links]) => ({
+          category,
+          links,
+        }));
 
         // Generate AI explanation of court structure
         const explanationPrompt = `You are a legal research assistant helping users understand how federal court websites organize their rules and procedures.
 
-Court: ${courtInfo.name}
+Court: ${courtName}
 
 Provide a brief, helpful explanation (2-3 sentences) about how this court organizes its local rules, standing orders, general orders, and judge-specific information. Include:
 1. The basic structure of local rules (civil, criminal, admiralty, etc.)
@@ -83,7 +116,7 @@ Keep it concise, practical, and user-friendly. Do not use bullet points.`;
 
         return {
           query: {
-            court: courtInfo.name,
+            court: courtName,
           },
           explanation,
           results,

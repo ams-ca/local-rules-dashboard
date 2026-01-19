@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, courtUrls, CourtUrl, InsertCourtUrl, pendingUrls, PendingUrl, InsertPendingUrl } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -266,4 +266,72 @@ export async function rejectPendingUrl(id: number, reviewedBy: string) {
     .where(eq(pendingUrls.id, id));
   
   return true;
+}
+
+
+/**
+ * Get distinct states from court_urls table
+ */
+export async function getDistinctStates(): Promise<{ state: string; stateName: string }[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const results = await db
+    .selectDistinct({ state: courtUrls.state })
+    .from(courtUrls)
+    .where(sql`${courtUrls.state} IS NOT NULL`);
+
+  // Map state abbreviations to full names
+  const stateNames: Record<string, string> = {
+    CA: "California",
+    NY: "New York",
+    FL: "Florida",
+  };
+
+  return results
+    .filter((r) => r.state)
+    .map((r) => ({
+      state: r.state!,
+      stateName: stateNames[r.state!] || r.state!,
+    }))
+    .sort((a, b) => a.stateName.localeCompare(b.stateName));
+}
+
+/**
+ * Get all courts list (distinct court IDs and names)
+ */
+export async function getAllCourtsList(): Promise<{ courtId: string; courtName: string; state: string | null }[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const results = await db
+    .selectDistinct({
+      courtId: courtUrls.courtId,
+      courtName: courtUrls.courtName,
+      state: courtUrls.state,
+    })
+    .from(courtUrls)
+    .orderBy(courtUrls.courtName);
+
+  return results;
+}
+
+/**
+ * Get courts by state
+ */
+export async function getCourtsByState(state: string): Promise<{ courtId: string; courtName: string; state: string | null }[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const results = await db
+    .selectDistinct({
+      courtId: courtUrls.courtId,
+      courtName: courtUrls.courtName,
+      state: courtUrls.state,
+    })
+    .from(courtUrls)
+    .where(eq(courtUrls.state, state))
+    .orderBy(courtUrls.courtName);
+
+  return results;
 }
