@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE court_urls SET courtType = 'federal' WHERE courtType IS NULL OR courtType = '';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3P1gfGjDfMygKj3.root --database QDBtEX8sNZWgS22EHtghQc --execute UPDATE court_urls SET courtType = 'federal' WHERE courtType IS NULL OR courtType = '';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 174
+}

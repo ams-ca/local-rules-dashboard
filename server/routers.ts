@@ -35,11 +35,11 @@ export const appRouter = router({
       .input(z.object({ state: z.string().optional() }))
       .query(async ({ input }) => {
         if (!input.state || input.state === "Federal") {
-          // Return all courts
-          return await db.getAllCourtsList();
+          // Return all federal courts (across all states)
+          return await db.getAllFederalCourts();
         }
-        // Return courts for specific state
-        return await db.getCourtsByState(input.state);
+        // Return state courts for specific state
+        return await db.getCourtsByState(input.state, "state");
       }),
     
     getSupportedCourts: publicProcedure.query(() => {
@@ -162,6 +162,7 @@ Keep it concise, practical, and user-friendly. Do not use bullet points.`;
           title: z.string(),
           description: z.string().optional(),
           lastVerified: z.date().optional(),
+          courtType: z.enum(["federal", "state"]),
         })
       )
       .mutation(async ({ ctx, input }) => {

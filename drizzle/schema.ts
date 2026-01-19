@@ -39,6 +39,8 @@ export const courtUrls = mysqlTable("court_urls", {
   circuit: varchar("circuit", { length: 64 }),
   /** State abbreviation, e.g., "CA", "NY", "FL" */
   state: varchar("state", { length: 2 }),
+  /** Court type: federal or state */
+  courtType: mysqlEnum("courtType", ["federal", "state"]).notNull(),
   /** Category type: local_rules, standing_orders, judges, general_orders, procedures */
   category: varchar("category", { length: 64 }).notNull(),
   /** Full URL to the court resource */
@@ -70,6 +72,8 @@ export const pendingUrls = mysqlTable("pending_urls", {
   circuit: varchar("circuit", { length: 64 }),
   /** State abbreviation, e.g., "CA", "NY", "FL" */
   state: varchar("state", { length: 2 }),
+  /** Court type: federal or state */
+  courtType: mysqlEnum("courtType", ["federal", "state"]).notNull(),
   category: varchar("category", { length: 64 }).notNull(),
   url: text("url").notNull(),
   title: varchar("title", { length: 255 }).notNull(),

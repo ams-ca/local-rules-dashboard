@@ -187,6 +187,7 @@ export async function saveResearchResults(result: ResearchResult): Promise<void>
       confidenceScore: url.confidenceScore,
       discoveredBy: "AI Agent",
       status: "pending",
+      courtType: "federal", // AI research agent currently only researches federal courts
     });
   }
   

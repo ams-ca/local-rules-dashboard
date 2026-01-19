@@ -242,6 +242,7 @@ export async function approvePendingUrl(id: number, reviewedBy: string) {
     lastVerified: new Date(),
     isActive: 1,
     updatedBy: reviewedBy,
+    courtType: url.courtType,
   });
   
   // Mark pending URL as approved
@@ -317,9 +318,11 @@ export async function getAllCourtsList(): Promise<{ courtId: string; courtName: 
 }
 
 /**
- * Get courts by state
+ * Get courts by state and type
+ * @param state - State abbreviation (e.g., "CA", "NY")
+ * @param courtType - "federal" for federal district courts, "state" for state courts
  */
-export async function getCourtsByState(state: string): Promise<{ courtId: string; courtName: string; state: string | null }[]> {
+export async function getCourtsByState(state: string, courtType: "federal" | "state"): Promise<{ courtId: string; courtName: string; state: string | null }[]> {
   const db = await getDb();
   if (!db) return [];
 
@@ -330,7 +333,27 @@ export async function getCourtsByState(state: string): Promise<{ courtId: string
       state: courtUrls.state,
     })
     .from(courtUrls)
-    .where(eq(courtUrls.state, state))
+    .where(sql`${courtUrls.state} = ${state} AND ${courtUrls.courtType} = ${courtType}`)
+    .orderBy(courtUrls.courtName);
+
+  return results;
+}
+
+/**
+ * Get all federal courts (all states)
+ */
+export async function getAllFederalCourts(): Promise<{ courtId: string; courtName: string; state: string | null }[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const results = await db
+    .selectDistinct({
+      courtId: courtUrls.courtId,
+      courtName: courtUrls.courtName,
+      state: courtUrls.state,
+    })
+    .from(courtUrls)
+    .where(eq(courtUrls.courtType, "federal"))
     .orderBy(courtUrls.courtName);
 
   return results;

@@ -121,3 +121,17 @@
 - [x] Implement cascading dropdown UI (state selector → court selector)
 - [x] Add "Federal" option to show all courts
 - [x] Test with California, Florida, and New York courts
+
+
+## Federal vs State Court System Expansion
+
+- [x] Design new architecture to distinguish federal courts from state courts
+- [x] Add courtType field to database (federal vs state)
+- [x] Update getCourtsByState to filter by court type
+- [x] Research all 58 California Superior Court websites
+- [x] Compile URLs for local rules, standing orders, and procedures for each CA Superior Court
+- [x] Populate database with all 58 California Superior Courts
+- [x] Update frontend to show "Federal" → federal district courts, "California" → CA Superior Courts
+- [x] Test federal court selection (should show all federal district courts)
+- [x] Test California state court selection (should show all 58 Superior Courts)
+- [ ] Update AI explanation logic to handle state vs federal court differences
