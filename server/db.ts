@@ -354,7 +354,7 @@ export async function getAllFederalCourts(): Promise<{ courtId: string; courtNam
     })
     .from(courtUrls)
     .where(eq(courtUrls.courtType, "federal"))
-    .orderBy(courtUrls.courtName);
+    .orderBy(courtUrls.state, courtUrls.courtName);
 
   return results;
 }

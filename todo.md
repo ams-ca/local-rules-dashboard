@@ -157,3 +157,6 @@
 - [x] Add italicized "AI Generated" disclaimer below AI-generated summaries
 
 - [x] Format category table headers to display as individual words (e.g., "DIVISION_RULES" → "Division Rules")
+
+- [x] Fix category name formatting for federal court categories without underscores (LOCALRULES → Local Rules)
+- [x] Group federal courts by state in dropdown when "Federal (All Courts)" is selected

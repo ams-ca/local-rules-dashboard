@@ -24,10 +24,20 @@ export default function Home() {
   const [selectedState, setSelectedState] = useState("");
   const [court, setCourt] = useState("");
 
-  // Format category names: DIVISION_RULES → Division Rules
+  // Format category names: DIVISION_RULES → Division Rules, LOCALRULES → Local Rules
   const formatCategoryName = (category: string) => {
+    // First handle underscores
+    if (category.includes('_')) {
+      return category
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+    }
+    // Handle camelCase or concatenated words (LOCALRULES → Local Rules)
     return category
-      .split('_')
+      .replace(/([A-Z])/g, ' $1') // Add space before capital letters
+      .trim()
+      .split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
   };
@@ -129,7 +139,31 @@ export default function Home() {
                       <SelectItem value="loading" disabled>
                         Loading courts...
                       </SelectItem>
+                    ) : selectedState === "Federal" ? (
+                      // Group federal courts by state
+                      (() => {
+                        const grouped = courts?.reduce((acc, court) => {
+                          const state = court.state || "Unknown";
+                          if (!acc[state]) acc[state] = [];
+                          acc[state].push(court);
+                          return acc;
+                        }, {} as Record<string, typeof courts>);
+
+                        return Object.entries(grouped || {}).map(([state, stateCourts]) => (
+                          <div key={state}>
+                            <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
+                              {state}
+                            </div>
+                            {stateCourts.map((c) => (
+                              <SelectItem key={c.courtId} value={c.courtId}>
+                                {c.courtName}
+                              </SelectItem>
+                            ))}
+                          </div>
+                        ));
+                      })()
                     ) : (
+                      // State courts - no grouping needed
                       courts?.map((c) => (
                         <SelectItem key={c.courtId} value={c.courtId}>
                           {c.courtName}
