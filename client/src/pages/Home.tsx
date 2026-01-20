@@ -169,6 +169,9 @@ export default function Home() {
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {searchMutation.data.explanation}
                 </p>
+                <p className="text-xs text-muted-foreground italic mt-3">
+                  AI Generated
+                </p>
               </Card>
             )}
 
@@ -208,7 +211,7 @@ export default function Home() {
                               <span className="truncate">{link.url}</span>
                               {link.verifiedDate && (
                                 <span className="text-xs text-muted-foreground">
-                                  • Verified{" "}
+                                  • URL Verified{" "}
                                   {new Date(link.verifiedDate).toLocaleDateString("en-US", {
                                     month: "short",
                                     day: "numeric",
