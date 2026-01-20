@@ -160,3 +160,5 @@
 
 - [x] Fix category name formatting for federal court categories without underscores (LOCALRULES → Local Rules)
 - [x] Group federal courts by state in dropdown when "Federal (All Courts)" is selected
+
+- [x] Remove test court from federal courts list
