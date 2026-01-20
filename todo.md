@@ -155,3 +155,5 @@
 ## UI Improvements
 - [x] Change verification date display from "Verified Jan 19, 2026" to "URL Verified Jan 19, 2026"
 - [x] Add italicized "AI Generated" disclaimer below AI-generated summaries
+
+- [x] Format category table headers to display as individual words (e.g., "DIVISION_RULES" → "Division Rules")

@@ -24,6 +24,14 @@ export default function Home() {
   const [selectedState, setSelectedState] = useState("");
   const [court, setCourt] = useState("");
 
+  // Format category names: DIVISION_RULES → Division Rules
+  const formatCategoryName = (category: string) => {
+    return category
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  };
+
   const searchMutation = trpc.search.findRules.useMutation();
   const { data: states, isLoading: statesLoading } = trpc.search.getStates.useQuery();
   const { data: courts, isLoading: courtsLoading } = trpc.search.getCourtsByState.useQuery(
@@ -182,7 +190,7 @@ export default function Home() {
                 <div key={category.category} className="border rounded-lg overflow-hidden">
                   <div className="bg-muted px-4 py-3 border-b">
                     <h3 className="font-semibold text-sm uppercase tracking-wide">
-                      {category.category}
+                      {formatCategoryName(category.category)}
                     </h3>
                   </div>
                   <div className="divide-y">
