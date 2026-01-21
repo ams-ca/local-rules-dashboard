@@ -171,3 +171,5 @@
 - [x] Add MIT LICENSE file
 
 - [x] Create CONTRIBUTING.md with detailed guidelines for adding courts and resources
+
+- [x] Remove DEMO_SCRIPT.md from repository

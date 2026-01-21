@@ -204,6 +204,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For questions, issues, or feature requests, please open an issue on GitHub.
 
-## Demo
 
-See [DEMO_SCRIPT.md](DEMO_SCRIPT.md) for a guided walkthrough of the application's features.
