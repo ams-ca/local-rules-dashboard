@@ -162,3 +162,10 @@
 - [x] Group federal courts by state in dropdown when "Federal (All Courts)" is selected
 
 - [x] Remove test court from federal courts list
+
+- [x] Create demo script showcasing federal and state court searches plus admin panel
+
+- [ ] Commit full repository to GitHub under 'local-rules' repository name
+
+- [x] Create comprehensive README.md for the repository
+- [x] Add MIT LICENSE file
