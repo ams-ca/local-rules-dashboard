@@ -169,3 +169,5 @@
 
 - [x] Create comprehensive README.md for the repository
 - [x] Add MIT LICENSE file
+
+- [x] Create CONTRIBUTING.md with detailed guidelines for adding courts and resources
