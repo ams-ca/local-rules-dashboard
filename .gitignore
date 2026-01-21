@@ -105,3 +105,27 @@ temp/
 *.db
 *.sqlite
 *.sqlite3
+
+# Personal information and credentials
+*.pem
+*.key
+*.cert
+**/secrets/
+**/credentials/
+
+# Temporary research and population scripts
+*.mjs
+*-research.md
+*-resources.md
+populate-*.mjs
+test-*.mjs
+check-*.mjs
+
+# Browser automation outputs
+page_texts/
+console_outputs/
+screenshots/
+
+# Project-specific temporary files
+todo.md
+DEMO_SCRIPT.md

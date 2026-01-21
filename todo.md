@@ -173,3 +173,5 @@
 - [x] Create CONTRIBUTING.md with detailed guidelines for adding courts and resources
 
 - [x] Remove DEMO_SCRIPT.md from repository
+
+- [x] Update .gitignore to exclude personal information and temporary files
