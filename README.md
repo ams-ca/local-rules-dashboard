@@ -1,36 +1,21 @@
 # Federal Local Rules Dashboard
+A prototype for a comprehensive web application for navigating local rules, standing orders, and judge-specific procedures from federal and state courts across the United States. The Federal Local Rules Dashboard streamlines legal research by aggregating court resources from multiple jurisdictions into a single, searchable interface. 
 
-A comprehensive web application for navigating local rules, standing orders, and judge-specific procedures from federal and state courts across the United States.
-
-## Overview
-
-The Federal Local Rules Dashboard streamlines legal research by aggregating court resources from multiple jurisdictions into a single, searchable interface. The system distinguishes between federal district courts and state superior courts, providing comprehensive coverage of procedural rules, judicial assignments, e-filing procedures, and division-specific guidelines.
+This prototype was built on Manus AI using vibe coding. No guarantees are made regarding the code in the repository.
 
 ## Features
 
 ### Two-Tier Court Selection
-- **Federal Courts**: Access all federal district courts organized by state
-- **State Courts**: Browse state-level superior courts by county (currently California)
+- **Federal Courts**: Access all federal district courts, organized by state (currently California and New York district courts only)
+- **State Courts**: Browse state-level superior courts, organized by county (currently California only, with only full local rules access built out for Monterey County)
 
 ### Comprehensive Resource Coverage
-- **Local Rules**: Court-wide procedural rules and regulations
-- **Standing Orders**: Temporary or permanent directives from the court
-- **General Orders**: Administrative orders affecting court operations
-- **Division Rules**: Specific rules for Civil, Criminal, Family, Probate, Traffic, and Small Claims divisions
-- **E-Filing Procedures**: Electronic filing requirements and guidelines
-- **Judicial Assignments**: Complete lists of judges and their department assignments
-- **Courtroom Guides**: Department-specific procedures and expectations
-- **Judge-Specific Procedures**: Individual judge standing orders and preferences
+The app intends to catalog the court rules most widely used by attorneys including local rules, standing orders, general orders, judge- or courtroom-specific rules and guidelines, division rules, judicial assignments, and e-filing procedures. 
 
 ### AI-Powered Summaries
 - Contextual explanations of court organizational structures
 - AI-generated summaries with clear disclaimers
-- Helps users understand court hierarchy and jurisdiction
-
-### URL Verification
-- All links display last verification dates
-- Ensures reliability and currency of information
-- Systematic verification workflow for maintaining data accuracy
+- Helps users understand get context for court procedures at a glance
 
 ## Technology Stack
 
@@ -75,7 +60,6 @@ local-rules-dashboard/
 │   ├── schema.ts          # Table definitions
 │   └── migrations/        # Migration files
 ├── shared/                # Shared types and constants
-└── DEMO_SCRIPT.md         # Presentation demo script
 ```
 
 ## Database Schema
@@ -141,37 +125,6 @@ pnpm test
 # Run specific test file
 pnpm test server/search.test.ts
 ```
-
-## Current Coverage
-
-### Federal Courts
-- **California**: 4 district courts (Central, Eastern, Northern, Southern)
-- **New York**: 4 district courts (Eastern, Northern, Southern, Western)
-
-### State Courts
-- **California**: 59 Superior Courts (one per county)
-  - Comprehensive data for Monterey County (e-filing, divisions, judges)
-  - Basic local rules for remaining 58 counties
-
-## Roadmap
-
-### Short Term
-- [ ] Add comprehensive resources for remaining 57 CA Superior Courts
-- [ ] Expand federal coverage to Florida, Texas, and other major states
-- [ ] Implement resource filtering by category
-- [ ] Add export functionality (PDF, CSV)
-
-### Medium Term
-- [ ] Add judge-specific procedure URLs
-- [ ] Implement automated URL verification workflow
-- [ ] Add court search/filter within dropdowns
-- [ ] Create admin interface for managing court data
-
-### Long Term
-- [ ] Expand to all 50 states
-- [ ] Add federal appellate courts
-- [ ] Implement user favorites and recent searches
-- [ ] Add email notifications for rule changes
 
 ## Contributing
 
