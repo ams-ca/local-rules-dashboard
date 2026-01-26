@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local Court Rules Finder</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1e40af',
+            muted: '#f1f5f9',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; }
+    .card { background: white; border: 1px solid #e2e8f0; border-radius: 0.5rem; }
+  </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <header class="border-b border-gray-200 bg-white">
+    <div class="max-w-5xl mx-auto px-4 py-6">
+      <div class="flex items-center gap-3 mb-2">
+        <svg class="h-8 w-8 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+        </svg>
+        <h1 class="text-3xl font-bold text-primary">Local Court Rules Finder</h1>
+      </div>
+      <p class="text-gray-500 text-sm">
+        Navigate to local rules, standing orders, and judge procedures from federal court websites.
+      </p>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-5xl mx-auto px-4 py-8">
+    <!-- Search Form -->
+    <div class="card p-6 mb-8">
+      <div class="space-y-4">
+        <!-- State Selector -->
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700">State *</label>
+          <select id="stateSelect" class="w-full h-11 px-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary">
+            <option value="">Select a state</option>
+            <option value="Federal">Federal (All Courts)</option>
+          </select>
+        </div>
+
+        <!-- Court Selector -->
+        <div id="courtSelectContainer" class="space-y-2 hidden">
+          <label class="block text-sm font-medium text-gray-700">Court *</label>
+          <select id="courtSelect" class="w-full h-11 px-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary">
+            <option value="">Select a court</option>
+          </select>
+          <p id="courtCount" class="text-xs text-gray-500"></p>
+        </div>
+
+        <!-- Search Button -->
+        <button id="searchBtn" disabled class="w-full h-11 bg-primary text-white font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+          <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          Search
+        </button>
+      </div>
+    </div>
+
+    <!-- Results Container -->
+    <div id="results" class="space-y-6"></div>
+  </main>
+
+  <!-- Court Data -->
+  <script>
+    // Embedded court data - all federal district courts with their URLs
+    const COURT_DATA = {
+      // California Federal Courts
+      "cand.uscourts.gov": {
+        name: "Northern District of California",
+        state: "CA",
+        circuit: "Ninth Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://cand.uscourts.gov/rules-forms-fees/local-rules", description: "Civil and criminal local rules" },
+          { category: "general_orders", title: "General Orders", url: "https://cand.uscourts.gov/rules-forms-fees/general-orders", description: "Court-wide general orders" },
+          { category: "standing_orders", title: "Standing Orders", url: "https://cand.uscourts.gov/judges/standing-orders", description: "Judge-specific standing orders" },
+          { category: "judges", title: "Judges Directory", url: "https://cand.uscourts.gov/judges", description: "List of judges and their procedures" },
+          { category: "misc_orders", title: "Miscellaneous Orders", url: "https://cand.uscourts.gov/rules-forms-fees/miscellaneous-orders", description: "Other court orders" },
+          { category: "forms", title: "Court Forms", url: "https://cand.uscourts.gov/rules-forms-fees/forms", description: "Official court forms" },
+          { category: "e_filing", title: "CM/ECF & E-Filing", url: "https://cand.uscourts.gov/cases-e-filing", description: "Electronic filing procedures" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      "casd.uscourts.gov": {
+        name: "Southern District of California",
+        state: "CA",
+        circuit: "Ninth Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.casd.uscourts.gov/rules/local-rules.aspx", description: "Civil and criminal local rules" },
+          { category: "general_orders", title: "General Orders", url: "https://www.casd.uscourts.gov/rules/general-orders.aspx", description: "Court-wide general orders" },
+          { category: "standing_orders", title: "Chambers Rules", url: "https://www.casd.uscourts.gov/judges/chambers-rules.aspx", description: "Judge-specific chambers rules" },
+          { category: "judges", title: "Judges Directory", url: "https://www.casd.uscourts.gov/Judges.aspx", description: "List of judges" },
+          { category: "e_filing", title: "CM/ECF", url: "https://www.casd.uscourts.gov/cmecf.aspx", description: "Electronic filing system" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      "cacd.uscourts.gov": {
+        name: "Central District of California",
+        state: "CA",
+        circuit: "Ninth Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.cacd.uscourts.gov/rules/local-rules", description: "Civil and criminal local rules" },
+          { category: "general_orders", title: "General Orders", url: "https://www.cacd.uscourts.gov/rules/general-orders-and-notices", description: "General orders and notices" },
+          { category: "standing_orders", title: "Judge Procedures", url: "https://apps.cacd.uscourts.gov/Jps/", description: "Judge procedure search" },
+          { category: "judges", title: "Judges Directory", url: "https://www.cacd.uscourts.gov/judges-and-staff/judges", description: "Judges and staff" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      "caed.uscourts.gov": {
+        name: "Eastern District of California",
+        state: "CA",
+        circuit: "Ninth Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.caed.uscourts.gov/caednew/index.cfm/rules/local-rules/", description: "Civil and criminal local rules" },
+          { category: "general_orders", title: "General Orders", url: "https://www.caed.uscourts.gov/caednew/index.cfm/rules/general-orders/", description: "Court general orders" },
+          { category: "judges", title: "Judges Directory", url: "https://www.caed.uscourts.gov/caednew/index.cfm/judges/", description: "Judges and their procedures" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      // New York Federal Courts
+      "nysd.uscourts.gov": {
+        name: "Southern District of New York",
+        state: "NY",
+        circuit: "Second Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.nysd.uscourts.gov/rules/local-rules", description: "Civil and criminal local rules" },
+          { category: "general_orders", title: "General Orders", url: "https://www.nysd.uscourts.gov/rules/general-orders", description: "Court general orders" },
+          { category: "standing_orders", title: "Individual Rules & Practices", url: "https://www.nysd.uscourts.gov/judges/judges-individual-rules-practice", description: "Judge-specific individual rules" },
+          { category: "judges", title: "Judges Directory", url: "https://www.nysd.uscourts.gov/judges", description: "List of judges" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      "nynd.uscourts.gov": {
+        name: "Northern District of New York",
+        state: "NY",
+        circuit: "Second Circuit",
+        urls: [
+          { category: "local_rules", title: "Rules & Orders", url: "https://www.nynd.uscourts.gov/rules-orders", description: "Local rules and orders" },
+          { category: "judges", title: "Judges Directory", url: "https://www.nynd.uscourts.gov/judges", description: "Judges and their chambers rules" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      "nyed.uscourts.gov": {
+        name: "Eastern District of New York",
+        state: "NY",
+        circuit: "Second Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.nyed.uscourts.gov/rules/local-rules", description: "Civil and criminal local rules" },
+          { category: "general_orders", title: "General Orders", url: "https://www.nyed.uscourts.gov/rules/general-orders", description: "Court general orders" },
+          { category: "judges", title: "Judges Directory", url: "https://www.nyed.uscourts.gov/judges", description: "Judges and individual practices" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      "nywd.uscourts.gov": {
+        name: "Western District of New York",
+        state: "NY",
+        circuit: "Second Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.nywd.uscourts.gov/local-rules", description: "Civil and criminal local rules" },
+          { category: "general_orders", title: "General Orders", url: "https://www.nywd.uscourts.gov/general-orders", description: "Court general orders" },
+          { category: "judges", title: "Judges Directory", url: "https://www.nywd.uscourts.gov/judges", description: "Judges and chambers procedures" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      // Texas Federal Courts
+      "txnd.uscourts.gov": {
+        name: "Northern District of Texas",
+        state: "TX",
+        circuit: "Fifth Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.txnd.uscourts.gov/local-rules-and-orders", description: "Civil and criminal local rules" },
+          { category: "judges", title: "Judges Directory", url: "https://www.txnd.uscourts.gov/judges", description: "Judges and their procedures" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      "txsd.uscourts.gov": {
+        name: "Southern District of Texas",
+        state: "TX",
+        circuit: "Fifth Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.txs.uscourts.gov/page/local-rules", description: "Civil and criminal local rules" },
+          { category: "judges", title: "Judges Directory", url: "https://www.txs.uscourts.gov/judges", description: "Judges information" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      "txed.uscourts.gov": {
+        name: "Eastern District of Texas",
+        state: "TX",
+        circuit: "Fifth Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.txed.uscourts.gov/page/local-rules", description: "Civil and criminal local rules" },
+          { category: "judges", title: "Judges Directory", url: "https://www.txed.uscourts.gov/judges-info", description: "Judge information" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      "txwd.uscourts.gov": {
+        name: "Western District of Texas",
+        state: "TX",
+        circuit: "Fifth Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.txwd.uscourts.gov/rules-forms/local-rules/", description: "Civil and criminal local rules" },
+          { category: "judges", title: "Judges Directory", url: "https://www.txwd.uscourts.gov/judges/", description: "Judges and procedures" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      // Florida Federal Courts
+      "flsd.uscourts.gov": {
+        name: "Southern District of Florida",
+        state: "FL",
+        circuit: "Eleventh Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.flsd.uscourts.gov/local-rules", description: "Civil and criminal local rules" },
+          { category: "judges", title: "Judges Directory", url: "https://www.flsd.uscourts.gov/judges", description: "Judges and procedures" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      "flmd.uscourts.gov": {
+        name: "Middle District of Florida",
+        state: "FL",
+        circuit: "Eleventh Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.flmd.uscourts.gov/local-rules", description: "Civil and criminal local rules" },
+          { category: "judges", title: "Judges Directory", url: "https://www.flmd.uscourts.gov/judges-information", description: "Judges and courtroom information" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      "flnd.uscourts.gov": {
+        name: "Northern District of Florida",
+        state: "FL",
+        circuit: "Eleventh Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.flnd.uscourts.gov/local-rules", description: "Civil and criminal local rules" },
+          { category: "judges", title: "Judges Directory", url: "https://www.flnd.uscourts.gov/judges", description: "Judges and preferences" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      // Illinois Federal Courts
+      "ilnd.uscourts.gov": {
+        name: "Northern District of Illinois",
+        state: "IL",
+        circuit: "Seventh Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.ilnd.uscourts.gov/local-rules.aspx", description: "Civil and criminal local rules" },
+          { category: "judges", title: "Judges Directory", url: "https://www.ilnd.uscourts.gov/judges-info.aspx", description: "Judges and procedures" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      "ilsd.uscourts.gov": {
+        name: "Southern District of Illinois",
+        state: "IL",
+        circuit: "Seventh Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.ilsd.uscourts.gov/localrules.aspx", description: "Civil and criminal local rules" },
+          { category: "judges", title: "Judges Directory", url: "https://www.ilsd.uscourts.gov/judges.aspx", description: "Judges information" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      "ilcd.uscourts.gov": {
+        name: "Central District of Illinois",
+        state: "IL",
+        circuit: "Seventh Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.ilcd.uscourts.gov/local-rules", description: "Civil and criminal local rules" },
+          { category: "judges", title: "Judges Directory", url: "https://www.ilcd.uscourts.gov/judges", description: "Judges and procedures" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      // Massachusetts
+      "mad.uscourts.gov": {
+        name: "District of Massachusetts",
+        state: "MA",
+        circuit: "First Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.mad.uscourts.gov/resources/localrules.htm", description: "Civil and criminal local rules" },
+          { category: "judges", title: "Judges Directory", url: "https://www.mad.uscourts.gov/judges/judges.htm", description: "Judges and standing orders" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      // Pennsylvania Federal Courts
+      "paed.uscourts.gov": {
+        name: "Eastern District of Pennsylvania",
+        state: "PA",
+        circuit: "Third Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.paed.uscourts.gov/documents/locrules/locrul.htm", description: "Civil and criminal local rules" },
+          { category: "judges", title: "Judges Directory", url: "https://www.paed.uscourts.gov/judges.htm", description: "Judges and policies" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      "pawd.uscourts.gov": {
+        name: "Western District of Pennsylvania",
+        state: "PA",
+        circuit: "Third Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.pawd.uscourts.gov/local-rules", description: "Civil and criminal local rules" },
+          { category: "judges", title: "Judges Directory", url: "https://www.pawd.uscourts.gov/judges", description: "Judges information" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      "pamd.uscourts.gov": {
+        name: "Middle District of Pennsylvania",
+        state: "PA",
+        circuit: "Third Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.pamd.uscourts.gov/local-rules", description: "Civil and criminal local rules" },
+          { category: "judges", title: "Judges Directory", url: "https://www.pamd.uscourts.gov/judges", description: "Judges and procedures" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      // DC
+      "dcd.uscourts.gov": {
+        name: "District of Columbia",
+        state: "DC",
+        circuit: "DC Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.dcd.uscourts.gov/local-rules", description: "Civil and criminal local rules" },
+          { category: "judges", title: "Judges Directory", url: "https://www.dcd.uscourts.gov/judges-info", description: "Judges and procedures" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      // New Jersey
+      "njd.uscourts.gov": {
+        name: "District of New Jersey",
+        state: "NJ",
+        circuit: "Third Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.njd.uscourts.gov/local-rules-district-new-jersey", description: "Civil and criminal local rules" },
+          { category: "judges", title: "Judges Directory", url: "https://www.njd.uscourts.gov/judges", description: "Judges and procedures" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      // Georgia
+      "gand.uscourts.gov": {
+        name: "Northern District of Georgia",
+        state: "GA",
+        circuit: "Eleventh Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.gand.uscourts.gov/local-rules-and-orders", description: "Civil and criminal local rules" },
+          { category: "judges", title: "Judges Directory", url: "https://www.gand.uscourts.gov/judges", description: "Judges and procedures" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      // Virginia
+      "vaed.uscourts.gov": {
+        name: "Eastern District of Virginia",
+        state: "VA",
+        circuit: "Fourth Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.vaed.uscourts.gov/local-rules", description: "Civil and criminal local rules (known as 'Rocket Docket')" },
+          { category: "judges", title: "Judges Directory", url: "https://www.vaed.uscourts.gov/judges", description: "Judges and procedures" }
+        ],
+        lastVerified: "2026-01-18"
+      },
+      // Delaware
+      "ded.uscourts.gov": {
+        name: "District of Delaware",
+        state: "DE",
+        circuit: "Third Circuit",
+        urls: [
+          { category: "local_rules", title: "Local Rules", url: "https://www.ded.uscourts.gov/local-rules", description: "Civil and criminal local rules" },
+          { category: "judges", title: "Judges Directory", url: "https://www.ded.uscourts.gov/judges", description: "Judges and procedures" }
+        ],
+        lastVerified: "2026-01-18"
+      }
+    };
+
+    // State name mappings
+    const STATE_NAMES = {
+      CA: "California",
+      NY: "New York",
+      TX: "Texas",
+      FL: "Florida",
+      IL: "Illinois",
+      MA: "Massachusetts",
+      PA: "Pennsylvania",
+      DC: "District of Columbia",
+      NJ: "New Jersey",
+      GA: "Georgia",
+      VA: "Virginia",
+      DE: "Delaware"
+    };
+
+    // Category display names
+    const CATEGORY_NAMES = {
+      local_rules: "Local Rules",
+      general_orders: "General Orders",
+      standing_orders: "Standing Orders",
+      judges: "Judges",
+      misc_orders: "Miscellaneous Orders",
+      forms: "Forms",
+      e_filing: "E-Filing / CM-ECF",
+      procedures: "Procedures"
+    };
+
+    // Get unique states from court data
+    function getStates() {
+      const states = new Set();
+      Object.values(COURT_DATA).forEach(court => {
+        if (court.state) states.add(court.state);
+      });
+      return Array.from(states).sort((a, b) =>
+        (STATE_NAMES[a] || a).localeCompare(STATE_NAMES[b] || b)
+      );
+    }
+
+    // Get courts by state or all federal courts
+    function getCourts(state) {
+      const courts = [];
+      Object.entries(COURT_DATA).forEach(([id, court]) => {
+        if (state === "Federal" || court.state === state) {
+          courts.push({ id, ...court });
+        }
+      });
+      return courts.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    // Initialize the page
+    function init() {
+      const stateSelect = document.getElementById('stateSelect');
+      const courtSelect = document.getElementById('courtSelect');
+      const courtSelectContainer = document.getElementById('courtSelectContainer');
+      const courtCount = document.getElementById('courtCount');
+      const searchBtn = document.getElementById('searchBtn');
+      const results = document.getElementById('results');
+
+      // Populate states
+      const states = getStates();
+      states.forEach(state => {
+        const option = document.createElement('option');
+        option.value = state;
+        option.textContent = STATE_NAMES[state] || state;
+        stateSelect.appendChild(option);
+      });
+
+      // State change handler
+      stateSelect.addEventListener('change', () => {
+        const state = stateSelect.value;
+        courtSelect.innerHTML = '<option value="">Select a court</option>';
+        results.innerHTML = '';
+
+        if (!state) {
+          courtSelectContainer.classList.add('hidden');
+          searchBtn.disabled = true;
+          return;
+        }
+
+        courtSelectContainer.classList.remove('hidden');
+        const courts = getCourts(state);
+
+        if (state === "Federal") {
+          // Group by state for federal view
+          const grouped = {};
+          courts.forEach(court => {
+            const s = court.state || "Other";
+            if (!grouped[s]) grouped[s] = [];
+            grouped[s].push(court);
+          });
+
+          Object.entries(grouped).sort((a, b) =>
+            (STATE_NAMES[a[0]] || a[0]).localeCompare(STATE_NAMES[b[0]] || b[0])
+          ).forEach(([s, stateCourts]) => {
+            const optgroup = document.createElement('optgroup');
+            optgroup.label = STATE_NAMES[s] || s;
+            stateCourts.forEach(court => {
+              const option = document.createElement('option');
+              option.value = court.id;
+              option.textContent = court.name;
+              optgroup.appendChild(option);
+            });
+            courtSelect.appendChild(optgroup);
+          });
+        } else {
+          courts.forEach(court => {
+            const option = document.createElement('option');
+            option.value = court.id;
+            option.textContent = court.name;
+            courtSelect.appendChild(option);
+          });
+        }
+
+        courtCount.textContent = `${courts.length} courts in ${state === "Federal" ? "all states" : STATE_NAMES[state] || state}`;
+        searchBtn.disabled = true;
+      });
+
+      // Court change handler
+      courtSelect.addEventListener('change', () => {
+        searchBtn.disabled = !courtSelect.value;
+        results.innerHTML = '';
+      });
+
+      // Search handler
+      searchBtn.addEventListener('click', () => {
+        const courtId = courtSelect.value;
+        if (!courtId || !COURT_DATA[courtId]) return;
+
+        const court = COURT_DATA[courtId];
+        displayResults(court);
+      });
+    }
+
+    // Display search results
+    function displayResults(court) {
+      const results = document.getElementById('results');
+      results.innerHTML = '';
+
+      // Court info card
+      const infoCard = document.createElement('div');
+      infoCard.className = 'card p-6 bg-blue-50';
+      infoCard.innerHTML = `
+        <h2 class="text-lg font-semibold mb-2 text-primary">${court.name}</h2>
+        <p class="text-sm text-gray-600">${court.circuit} &bull; ${STATE_NAMES[court.state] || court.state}</p>
+        <p class="text-xs text-gray-500 mt-2">Last verified: ${new Date(court.lastVerified).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+      `;
+      results.appendChild(infoCard);
+
+      // Group URLs by category
+      const categories = {};
+      court.urls.forEach(url => {
+        if (!categories[url.category]) categories[url.category] = [];
+        categories[url.category].push(url);
+      });
+
+      // Display each category
+      Object.entries(categories).forEach(([category, urls]) => {
+        const section = document.createElement('div');
+        section.className = 'border rounded-lg overflow-hidden';
+
+        const header = document.createElement('div');
+        header.className = 'bg-gray-100 px-4 py-3 border-b';
+        header.innerHTML = `<h3 class="font-semibold text-sm uppercase tracking-wide">${CATEGORY_NAMES[category] || category.replace(/_/g, ' ')}</h3>`;
+        section.appendChild(header);
+
+        const list = document.createElement('div');
+        list.className = 'divide-y';
+
+        urls.forEach(link => {
+          const item = document.createElement('div');
+          item.className = 'px-4 py-3 hover:bg-gray-50 transition-colors';
+          item.innerHTML = `
+            <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="flex items-start gap-3 group">
+              <svg class="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0 group-hover:text-primary transition-colors" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              <div class="flex-1 min-w-0">
+                <div class="font-medium text-sm group-hover:text-primary transition-colors">${link.title}</div>
+                ${link.description ? `<div class="text-xs text-gray-500 mt-1">${link.description}</div>` : ''}
+                <div class="text-xs text-gray-400 mt-1 truncate">${link.url}</div>
+              </div>
+            </a>
+          `;
+          list.appendChild(item);
+        });
+
+        section.appendChild(list);
+        results.appendChild(section);
+      });
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
