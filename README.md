@@ -1,7 +1,7 @@
 # Federal Local Rules Dashboard
-A prototype for a comprehensive web application for navigating local rules, standing orders, and judge-specific procedures from federal and state courts across the United States. The Federal Local Rules Dashboard streamlines legal research by aggregating court resources from multiple jurisdictions into a single, searchable interface. 
+INCOMPLETE, DO NOT RELY ON THIS. This is a prototype for a comprehensive web application for navigating local rules, standing orders, and judge-specific procedures from federal and state courts across the United States. The Federal Local Rules Dashboard streamlines legal research by aggregating court resources from multiple jurisdictions into a single, searchable interface. 
 
-This prototype was built on Manus AI using vibe coding. No guarantees are made regarding the code in the repository.
+This prototype was built for LegalQuants hackathon January 2026 on Manus AI. No guarantees are made regarding the code in the repository.
 
 ## Features
 
